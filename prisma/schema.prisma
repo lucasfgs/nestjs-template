@@ -9,6 +9,42 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Users {
+  id         String    @id @default(cuid())
+  name       String    @db.VarChar(50)
+  email      String    @db.VarChar(100)
+  password   String    @db.VarChar(100)
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  role       Roles     @relation(fields: [roleId], references: [id])
+  roleId     Int
+}
+
+model Roles {
+  id             Int                @id @default(autoincrement())
+  name           String             @db.VarChar(50)
+  Users          Users[]
+  PermissionRole Permission_Roles[]
+}
+
+model Permissions {
+  id             Int                @id @default(autoincrement())
+  name           String             @db.VarChar(50)
+  PermissionRole Permission_Roles[]
+}
+
+model Permission_Roles {
+  id           Int         @id @default(autoincrement())
+  create       Boolean     @default(false)
+  read         Boolean     @default(false)
+  update       Boolean     @default(false)
+  delete       Boolean     @default(false)
+  role         Roles       @relation(fields: [roleId], references: [id])
+  roleId       Int
+  permission   Permissions @relation(fields: [permissionId], references: [id])
+  permissionId Int
 }

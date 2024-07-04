@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+
 import { AuthenticateUserDto } from './dto/authenticateUserDto';
 
 @Controller('auth')

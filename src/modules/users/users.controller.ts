@@ -7,6 +7,7 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
+
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -25,7 +26,7 @@ export class UsersController {
       throw new ConflictException('User with this email already exists');
     }
 
-    return await this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto);
   }
 
   @Get()

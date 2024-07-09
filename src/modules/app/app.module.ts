@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 
-import { AppController } from './app.controller';
+import { UsersModule } from '../api/users/users.module';
+import { HealthModule } from '../infrastructure/health/health.module';
+import { AuthModule } from '../api/auth/auth.module';
+import { PrismaModule } from '../infrastructure/prisma/prisma.module';
+
 import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
-import { HealthModule } from './modules/health/health.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { PrismaModule } from './modules/prisma/prisma.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [

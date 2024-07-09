@@ -5,7 +5,7 @@ export class AuthenticateUserDto {
     example: 'test@mail.com',
     description: 'The email of the user',
   })
-  username: string;
+  email: string;
 
   @ApiProperty({
     example: 'R4ND0MP4$W0RD!',

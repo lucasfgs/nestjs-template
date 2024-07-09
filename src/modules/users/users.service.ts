@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/CreateUserDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
 
 @Injectable()
 export class UsersService {
@@ -38,7 +38,10 @@ export class UsersService {
   }
 
   findByEmail(email: string) {
-    return this.prismaService.users.findFirst({ where: { email } });
+    return this.prismaService.users.findFirst({
+      where: { email },
+      include: { role: true },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

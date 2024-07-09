@@ -13,7 +13,7 @@ export class CreateUserDto implements Partial<Prisma.UsersCreateInput> {
   })
   email: string;
   @ApiProperty({
-    example: 'R4ND0MP4$$W0RD!',
+    example: 'R4ND0MP4$W0RD!',
     description: 'The password of the user',
   })
   password: string;

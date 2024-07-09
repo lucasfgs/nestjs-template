@@ -9,6 +9,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('API example')
     .setDescription('This is an API example')
     .setVersion('1.0')

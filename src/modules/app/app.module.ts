@@ -5,6 +5,7 @@ import { UsersModule } from '../api/users/users.module';
 import { HealthModule } from '../infrastructure/health/health.module';
 import { AuthModule } from '../api/auth/auth.module';
 import { PrismaModule } from '../infrastructure/prisma/prisma.module';
+import { RolesModule } from '../api/roles/roles.module';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -15,9 +16,10 @@ import { AppController } from './app.controller';
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production',
     }),
-    UsersModule,
     HealthModule,
     AuthModule,
+    UsersModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

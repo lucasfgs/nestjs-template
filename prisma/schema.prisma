@@ -25,19 +25,19 @@ model Users {
 }
 
 model Roles {
-  id             Int                @id @default(autoincrement())
-  name           String             @db.VarChar(50)
-  Users          Users[]
-  PermissionRole Permission_Roles[]
+  id             Int               @id @default(autoincrement())
+  name           String            @unique @db.VarChar(50)
+  users          Users[]
+  permissionRole Permission_Role[]
 }
 
 model Permissions {
-  id             Int                @id @default(autoincrement())
-  name           String             @db.VarChar(50)
-  PermissionRole Permission_Roles[]
+  id             Int               @id @default(autoincrement())
+  name           String            @db.VarChar(50)
+  permissionRole Permission_Role[]
 }
 
-model Permission_Roles {
+model Permission_Role {
   id           Int         @id @default(autoincrement())
   create       Boolean     @default(false)
   read         Boolean     @default(false)

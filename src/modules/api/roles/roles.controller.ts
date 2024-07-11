@@ -80,26 +80,31 @@ export class RolesController {
    * @param id - The unique identifier of the role to update.
    * @param updateRoleDto - The data to update the role with.
    *
+   * @throws NotFoundException - If the role does not exist
    * @throws ConflictException - If a role with the same name as the updated role already exists.
-   * @throws NotFoundException - If a role with the given ID does not exist.
-   *
    * @returns The updated role.
    */
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    // Check if the role name already exists
-    const existingRole = await this.rolesService.findByName(updateRoleDto.name);
+    // Check if the role exists
+    const role = await this.rolesService.findOne(+id);
 
-    if (!existingRole) {
+    if (!role) {
       throw new NotFoundException(`Role with id {${id}} not found.`);
     }
 
-    if (Number(existingRole.id) !== +id) {
-      throw new ConflictException(
-        `Role with name {${updateRoleDto.name}} already exists.`,
+    // If role name is being updated, check if it already exists
+    if (role.name !== updateRoleDto.name) {
+      const existingRole = await this.rolesService.findByName(
+        updateRoleDto.name,
       );
-    }
 
+      if (existingRole && Number(existingRole.id) !== +id) {
+        throw new ConflictException(
+          `Role with name {${updateRoleDto.name}} already exists.`,
+        );
+      }
+    }
     // Update the role if it exists and name doesn't already exist
     return this.rolesService.update(+id, updateRoleDto);
   }

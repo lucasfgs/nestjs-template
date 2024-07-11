@@ -10,7 +10,7 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/CreateUserDto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @ApiBearerAuth()
 @Controller('users')

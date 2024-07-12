@@ -25,20 +25,19 @@ model Users {
 }
 
 model Roles {
-  id             Int               @id @default(autoincrement())
-  name           String            @unique @db.VarChar(50)
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar(50)
   users          Users[]
-  permissionRole Permission_Role[]
+  permissionRole PermissionRole[]
 }
 
 model Permissions {
-  id             Int               @id @default(autoincrement())
-  name           String            @db.VarChar(50)
-  permissionRole Permission_Role[]
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(50)
+  permissionRole PermissionRole[]
 }
 
-model Permission_Role {
-  id           Int         @id @default(autoincrement())
+model PermissionRole {
   create       Boolean     @default(false)
   read         Boolean     @default(false)
   update       Boolean     @default(false)
@@ -47,4 +46,6 @@ model Permission_Role {
   roleId       Int
   permission   Permissions @relation(fields: [permissionId], references: [id])
   permissionId Int
+
+  @@unique([roleId, permissionId])
 }

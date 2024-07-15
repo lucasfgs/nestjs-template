@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 import { UsersModule } from '../api/users/users.module';
-import { HealthModule } from '../infrastructure/health/health.module';
+import { HealthModule } from '../api/health/health.module';
 import { AuthModule } from '../api/auth/auth.module';
-import { PrismaModule } from '../infrastructure/prisma/prisma.module';
+import { PrismaModule } from '../shared/prisma/prisma.module';
 import { RolesModule } from '../api/roles/roles.module';
 import { PermissionsModule } from '../api/permissions/permissions.module';
 import { PermissionRolesModule } from '../api/permission-roles/permission-roles.module';

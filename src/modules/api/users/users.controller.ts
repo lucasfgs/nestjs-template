@@ -6,6 +6,8 @@ import {
   Param,
   NotFoundException,
   ConflictException,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -13,6 +15,7 @@ import { RolesService } from '../roles/roles.service';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiBearerAuth()
 @Controller('users')
@@ -58,5 +61,42 @@ export class UsersController {
     }
 
     return user;
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    // Check if the user exists
+    const user = await this.usersService.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id {${id}} not found.`);
+    }
+
+    // If user email is being updated, check if it already exists
+    if (user.email !== updateUserDto.email) {
+      const existingUser = await this.usersService.findByEmail(
+        updateUserDto.email,
+      );
+
+      if (existingUser && existingUser.id !== id) {
+        throw new ConflictException(
+          `User with email {${updateUserDto.email}} already exists.`,
+        );
+      }
+    }
+    // Update the user if it exists and name doesn't already exist
+    return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    // Check if role exists
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id {${id}} not found.`);
+    }
+
+    // Delete the user if it exists
+    return this.usersService.remove(id);
   }
 }

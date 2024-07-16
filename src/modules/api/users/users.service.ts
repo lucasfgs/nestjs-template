@@ -44,11 +44,14 @@ export class UsersService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user ${updateUserDto}`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prismaService.users.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.prismaService.users.delete({ where: { id } });
   }
 }

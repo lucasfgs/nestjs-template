@@ -1,12 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './modules/app/app.module';
+import { validatorOptions } from './configs/validator-options';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
   });
+
+  // Middlewares
+  app.useGlobalPipes(new ValidationPipe(validatorOptions));
 
   const config = new DocumentBuilder()
     .addBearerAuth()

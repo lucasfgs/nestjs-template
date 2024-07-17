@@ -7,6 +7,7 @@ import { RolesModule } from '../roles/roles.module';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 jest.mock('bcrypt', () => ({
   hashSync: jest.fn().mockReturnValue('hashedPassword'),
@@ -45,7 +46,7 @@ describe('UsersService', () => {
         email: 'test@example.com',
         name: 'Test User',
         password: 'password123',
-        roleId: 1, // Valid roleId
+        roleId: 1,
       };
 
       await expect(service.create(user)).resolves.not.toThrow();
@@ -62,6 +63,40 @@ describe('UsersService', () => {
       await service.create(user);
 
       expect(bcrypt.hashSync).toHaveBeenCalledWith(user.password, 10);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return all users', async () => {
+      prismaService.users.findMany = jest.fn().mockResolvedValue([]);
+
+      await expect(service.findAll()).resolves.toEqual([]);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a user by id', async () => {
+      prismaService.users.findUnique = jest.fn().mockResolvedValue(null);
+
+      await expect(service.findOne('testId')).resolves.toEqual(null);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a user by id', async () => {
+      prismaService.users.update = jest.fn().mockResolvedValue(null);
+
+      await expect(
+        service.update('testId', {} as UpdateUserDto),
+      ).resolves.not.toThrow();
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a user by id', async () => {
+      prismaService.users.delete = jest.fn().mockResolvedValue(null);
+
+      await expect(service.remove('testId')).resolves.not.toThrow();
     });
   });
 });

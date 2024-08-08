@@ -56,7 +56,9 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const user = await this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id, {
+      withRole: true,
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -88,6 +90,18 @@ export class UsersController {
         );
       }
     }
+
+    // If user role is being updated, check if it already exists
+    if (user.roleId !== updateUserDto.roleId) {
+      const existingRole = await this.rolesService.findOne(
+        updateUserDto.roleId,
+      );
+
+      if (!existingRole) {
+        throw new NotFoundException('Role not found');
+      }
+    }
+
     // Update the user if it exists and name doesn't already exist
     return this.usersService.update(id, updateUserDto);
   }

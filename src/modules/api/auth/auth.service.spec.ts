@@ -12,6 +12,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { AuthController } from './auth.controller';
+import { PermissionGuard } from './guards/permission.guard';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -34,6 +35,10 @@ describe('AuthService', () => {
         {
           provide: APP_GUARD,
           useClass: JwtAuthGuard,
+        },
+        {
+          provide: APP_GUARD,
+          useClass: PermissionGuard,
         },
       ],
       controllers: [AuthController],

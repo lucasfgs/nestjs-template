@@ -33,8 +33,13 @@ export class UsersService {
     return this.prismaService.users.findMany();
   }
 
-  findOne(id: string) {
-    return this.prismaService.users.findUnique({ where: { id } });
+  findOne(id: string, options: { withRole: boolean } = null) {
+    return this.prismaService.users.findUnique({
+      where: { id },
+      include: {
+        role: options?.withRole || false,
+      },
+    });
   }
 
   findByEmail(email: string) {
@@ -45,6 +50,10 @@ export class UsersService {
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      updateUserDto.password = bcrypt.hashSync(updateUserDto.password, 10);
+    }
+
     return this.prismaService.users.update({
       where: { id },
       data: updateUserDto,

@@ -5,3 +5,8 @@ export class Role {
   name: string;
   users: User[];
 }
+
+export enum Roles {
+  ADMIN = 'admin',
+  GUEST = 'guest',
+}

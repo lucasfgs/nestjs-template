@@ -11,14 +11,17 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { SseService } from 'src/modules/shared/sse/sse.service';
+import { AllowPermissions } from 'src/decorators/AllowPermissions';
 
 import { RolesService } from '../roles/roles.service';
+import { EPermission } from '../permissions/entities/permission.entity';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiBearerAuth()
+@AllowPermissions(EPermission.USERS)
 @Controller('users')
 export class UsersController {
   constructor(

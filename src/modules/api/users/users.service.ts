@@ -42,10 +42,22 @@ export class UsersService {
     });
   }
 
-  findByEmail(email: string) {
+  findByEmail(email: string, withPermissions: boolean = false) {
     return this.prismaService.users.findFirst({
       where: { email },
-      include: { role: true },
+      ...(withPermissions && {
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      }),
     });
   }
 

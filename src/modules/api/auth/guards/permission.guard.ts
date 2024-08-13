@@ -1,21 +1,43 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ALLOWED_ROLES } from 'src/decorators/AllowedRoles';
+import { Method } from 'axios';
+import { ALLOW_PERMISSIONS } from 'src/decorators/AllowPermissions';
+
+import { IAuthenticatedUser } from '../dto/authenticate-user.dto';
+
+const MethodPermissions = {
+  POST: 'create',
+  GET: 'read',
+  PUT: 'update',
+  PATCH: 'update',
+  DELETE: 'delete',
+};
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride(ALLOWED_ROLES, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const allowedPermissions = this.reflector.getAllAndOverride(
+      ALLOW_PERMISSIONS,
+      [context.getHandler(), context.getClass()],
+    );
 
-    if (!requiredRoles) return true;
+    if (!allowedPermissions) return true;
 
-    const { user } = context.switchToHttp().getRequest();
+    const { user, method } = context
+      .switchToHttp()
+      .getRequest<{ user: IAuthenticatedUser; method: Method }>();
 
-    return requiredRoles.some((role: string) => user.role === role);
+    const mappedMathod = MethodPermissions[method];
+
+    return (
+      user.permissions?.some((permission) => {
+        return (
+          allowedPermissions.includes(permission.name) &&
+          permission[mappedMathod]
+        );
+      }) || false
+    );
   }
 }

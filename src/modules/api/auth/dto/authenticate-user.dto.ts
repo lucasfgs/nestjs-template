@@ -17,3 +17,19 @@ export class AuthenticateUserDto {
   })
   password: string;
 }
+
+export interface IAuthenticatedUser {
+  userId: string;
+  email: string;
+  permissions:
+    | [
+        {
+          name: string;
+          create: boolean;
+          read: boolean;
+          update: boolean;
+          delete: boolean;
+        },
+      ]
+    | null;
+}

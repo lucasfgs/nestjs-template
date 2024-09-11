@@ -8,6 +8,7 @@ import { validatorOptions } from './configs/validator-options';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
+    cors: true,
   });
 
   // Middlewares
@@ -22,6 +23,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
+  await app.listen(process.env.API_PORT);
 }
 bootstrap();

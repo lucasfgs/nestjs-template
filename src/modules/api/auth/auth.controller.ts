@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -8,12 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Public } from 'src/decorators/Public';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthenticateUserDto } from './dto/authenticate-user.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local.guard';
 
-@Controller('auth')
+@Controller('')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -26,5 +28,11 @@ export class AuthController {
     @Request() req,
   ) {
     return this.authService.login(req.user);
+  }
+
+  @ApiBearerAuth()
+  @Get('/me')
+  async me(@Request() req) {
+    return req.user;
   }
 }

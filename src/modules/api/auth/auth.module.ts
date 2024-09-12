@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
+import { EmailModule } from 'src/modules/shared/email/email.module';
 
 import { UsersModule } from '../users/users.module';
 
@@ -21,6 +22,7 @@ import { PermissionGuard } from './guards/permission.guard';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: jwtConstants.expiresIn },
     }),
+    EmailModule,
   ],
   providers: [
     AuthService,

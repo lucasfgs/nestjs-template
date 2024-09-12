@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { EmailService } from 'src/modules/shared/email/email.service';
 
 import { UsersService } from '../users/users.service';
 import { User, UserWithoutPassword } from '../users/entity/user';
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async validateUser(
@@ -44,5 +46,19 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async forgotPassword(email: string): Promise<number> {
+    // Generate a random 6 digits code
+    const code = Math.floor(100000 + Math.random() * 900000);
+
+    // Implementation for sending password reset email
+    await this.emailService.sendEmail({
+      subject: 'Reset Password',
+      to: email,
+      text: `Click on this link to reset your password: ${code}`,
+    });
+
+    return code;
   }
 }

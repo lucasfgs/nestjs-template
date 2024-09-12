@@ -11,6 +11,7 @@ import { jwtConstants } from './src/modules/api/auth/constants';
 import { JwtStrategy } from './src/modules/api/auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from './src/modules/api/auth/guards/jwt.guard';
 import { PermissionGuard } from './src/modules/api/auth/guards/permission.guard';
+import { EmailModule } from './src/modules/shared/email/email.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PermissionGuard } from './src/modules/api/auth/guards/permission.guard'
       secret: jwtConstants.secret,
       signOptions: { expiresIn: jwtConstants.expiresIn },
     }),
+    EmailModule,
   ],
   providers: [
     AuthService,

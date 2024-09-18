@@ -10,7 +10,11 @@ import { sessionConstants } from './modules/api/auth/constants';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
-    cors: true,
+    cors: {
+      credentials: true,
+      origin: 'http://localhost:3000',
+      methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+    },
   });
 
   // Middlewares

@@ -27,7 +27,7 @@ export class AuthService {
     return null;
   }
 
-  login(user: User): { access_token: string } {
+  login(user: User): { accessToken: string } {
     const normalizedPermissions = user.role?.permissionRole?.map(
       (permissionRole) => ({
         name: permissionRole.permission.name,
@@ -44,7 +44,7 @@ export class AuthService {
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 

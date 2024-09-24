@@ -12,6 +12,10 @@ import { JwtStrategy } from './src/modules/api/auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from './src/modules/api/auth/guards/jwt.guard';
 import { PermissionGuard } from './src/modules/api/auth/guards/permission.guard';
 import { EmailModule } from './src/modules/shared/email/email.module';
+import { WebhooksController } from './src/modules/api/payment/stripe/webhooks/webhooks.controller';
+import { WebhooksService } from './src/webhooks/webhooks.service';
+import { StripeWebhooksService } from './src/stripe-webhooks/stripe-webhooks.service';
+import { WebhooksService } from './src/webhooks/webhooks.service';
 
 @Module({
   imports: [
@@ -35,7 +39,9 @@ import { EmailModule } from './src/modules/shared/email/email.module';
       provide: APP_GUARD,
       useClass: PermissionGuard,
     },
+    WebhooksService,
+    StripeWebhooksService,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, WebhooksController],
 })
 export class AuthModule {}

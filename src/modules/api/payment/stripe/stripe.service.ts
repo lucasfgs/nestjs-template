@@ -2,7 +2,7 @@ import StripeSDK from 'stripe';
 
 export class StripeService {
   private readonly secretKey = process.env.STRIPE_SECRET_KEY;
-  private readonly publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  private readonly webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   private api: StripeSDK;
 
   constructor() {
@@ -11,30 +11,39 @@ export class StripeService {
     });
   }
 
-  async getPaymentMethods() {
-    return this.api.paymentMethods.list({ type: 'card' });
+  async getCustomer(customerId: string) {
+    try {
+      return await this.api.customers.retrieve(customerId);
+    } catch (error) {
+      return null;
+    }
   }
 
-  async getCustomer(customerId: string) {
-    return this.api.customers.retrieve(customerId);
+  async getSubscription(subscriptionId: string) {
+    try {
+      return await this.api.subscriptions.retrieve(subscriptionId);
+    } catch (error) {
+      return null;
+    }
   }
 
   async createCustomer(customer: StripeSDK.CustomerCreateParams) {
     return this.api.customers.create(customer);
   }
 
-  async createPaymentMethod(options: StripeSDK.PaymentMethodCreateParams) {
-    return this.api.paymentMethods.create(options);
-  }
-
-  async attachPaymentMethodToCustomer(
-    paymentMethodId: string,
-    options: StripeSDK.PaymentMethodAttachParams,
-  ) {
-    return this.api.paymentMethods.attach(paymentMethodId, options);
-  }
-
   async createCheckoutSession(options: StripeSDK.Checkout.SessionCreateParams) {
     return this.api.checkout.sessions.create(options);
+  }
+
+  async validateWebhook(payload: string | Buffer, signature: string) {
+    try {
+      return this.api.webhooks.constructEvent(
+        payload,
+        signature,
+        this.webhookSecret,
+      );
+    } catch (error) {
+      return false;
+    }
   }
 }

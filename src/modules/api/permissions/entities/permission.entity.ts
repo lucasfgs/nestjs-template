@@ -1,6 +1,7 @@
 export class Permission {
   id: number;
   name: string;
+  description: string;
 }
 
 export enum EPermission {

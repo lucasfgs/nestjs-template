@@ -35,6 +35,7 @@ model Roles {
 model Permissions {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(50)
+  description    String           @default("") @db.VarChar(300)
   permissionRole PermissionRole[]
 }
 

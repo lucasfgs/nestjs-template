@@ -45,7 +45,6 @@ export class StripeController {
 
     // Create a Checkout Session
     // TODO: Implement the logic to create a product, add it to the line items, and set the success and cancel URLs from environment variables.
-
     return this.stripeService.createCheckoutSession({
       customer: customer.id,
       payment_method_types: ['card'],
@@ -90,10 +89,6 @@ export class StripeController {
         break;
       case 'customer.subscription.deleted':
         await this.stripeWebhooksService.handleSubscriptionDeleted(event);
-        break;
-      // Unexpected event type
-      default:
-        console.log(`Unhandled event type ${event.type}.`);
         break;
     }
   }

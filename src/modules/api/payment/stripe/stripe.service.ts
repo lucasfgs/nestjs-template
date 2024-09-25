@@ -27,6 +27,14 @@ export class StripeService {
     }
   }
 
+  async getInvoice(invoiceId: string) {
+    try {
+      return await this.api.invoices.retrieve(invoiceId);
+    } catch (error) {
+      return null;
+    }
+  }
+
   async createCustomer(customer: StripeSDK.CustomerCreateParams) {
     return this.api.customers.create(customer);
   }

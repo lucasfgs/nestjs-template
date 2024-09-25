@@ -14,14 +14,15 @@ export class StripeWebhooksService {
     private prismaService: PrismaService,
   ) {}
 
+  // Called when the checkout session is completed
   async handleCheckouSessionCompleted(
     event: Stripe.CheckoutSessionCompletedEvent,
   ) {
     if (event.data.object.mode !== 'subscription') return;
 
     // Get the user from the database
-    const user = await this.usersService.findByEmail(
-      event.data.object.customer_details.email,
+    const user = await this.usersService.findOne(
+      String(event.data.object.customer),
     );
 
     // Would be good to create a new user account if the user doesn't exist
@@ -51,15 +52,90 @@ export class StripeWebhooksService {
     });
   }
 
-  handleInvoicePaid(event: Stripe.InvoicePaidEvent) {
-    console.log('Invoice paid', event);
+  // Called when the recurring payment is successful
+  async handleInvoicePaid(event: Stripe.InvoicePaidEvent) {
+    const subscriptionId = event.data.object.subscription;
+
+    // Get the subscription from the database
+    const storedSubscription = this.prismaService.subscription.findFirst({
+      where: {
+        stripeSubscriptionId: String(subscriptionId),
+      },
+    });
+
+    if (!storedSubscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    // Get more subscription details from the Stripe API
+    const subscription = await this.stripeService.getSubscription(
+      String(subscriptionId),
+    );
+
+    // Update the subscription status
+    await this.prismaService.subscription.update({
+      where: {
+        id: subscription.id,
+      },
+      data: {
+        status: subscription.status,
+        startDate: new Date(subscription.current_period_start * 1000),
+        endDate: new Date(subscription.current_period_end * 1000),
+      },
+    });
   }
 
-  handleSubscriptionDeleted(event: Stripe.CustomerSubscriptionDeletedEvent) {
-    console.log('Subscription deleted', event);
+  // Called when the subscription is deleted or canceled
+  async handleSubscriptionDeleted(
+    event: Stripe.CustomerSubscriptionDeletedEvent,
+  ) {
+    const subscriptionId = event.data.object.id;
+
+    // Get the subscription from the database
+    const subscription = await this.prismaService.subscription.findFirst({
+      where: {
+        stripeSubscriptionId: String(subscriptionId),
+      },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    // Update the subscription status
+    await this.prismaService.subscription.update({
+      where: {
+        id: subscription.id,
+      },
+      data: {
+        status: 'canceled',
+      },
+    });
   }
 
-  handleChargeRefunded(event: Stripe.ChargeRefundedEvent) {
-    console.log('Charge refunded', event);
+  // Called when the payment is refunded
+  async handleChargeRefunded(event: Stripe.ChargeRefundedEvent) {
+    if (event.data.object.amount !== event.data.object.amount_refunded) {
+      throw new Error('Partial refunds are not supported');
+    }
+
+    // Get more details about the invoice
+    const invoice = await this.stripeService.getInvoice(
+      String(event.data.object.invoice),
+    );
+
+    if (!invoice) {
+      throw new NotFoundException('Invoice not found');
+    }
+
+    // Update the invoice status
+    await this.prismaService.subscription.update({
+      where: {
+        id: invoice.id,
+      },
+      data: {
+        status: 'refunded',
+      },
+    });
   }
 }

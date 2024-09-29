@@ -34,7 +34,7 @@ export class PermissionGuard implements CanActivate {
     return (
       user.permissions?.some((permission) => {
         return (
-          allowedPermissions.includes(permission.name) &&
+          allowedPermissions.includes(permission.name.toLowerCase()) &&
           permission[mappedMathod]
         );
       }) || false

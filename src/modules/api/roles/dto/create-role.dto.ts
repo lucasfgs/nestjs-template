@@ -11,4 +11,12 @@ export class CreateRoleDto implements Partial<Role> {
     description: 'The name of the role',
   })
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'Administrator role',
+    description: 'The description of the role',
+  })
+  description: string;
 }

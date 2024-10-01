@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 import { Role } from '../entities/role.entity';
+import { PermissionRole } from '../../permission-roles/entities/permission-role.entity';
+
+interface IPermission extends Partial<PermissionRole> {}
 
 export class CreateRoleDto implements Partial<Role> {
   @IsString()
@@ -19,4 +22,6 @@ export class CreateRoleDto implements Partial<Role> {
     description: 'The description of the role',
   })
   description: string;
+
+  permissions: IPermission[];
 }

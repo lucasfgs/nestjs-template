@@ -64,14 +64,31 @@ export class RolesController {
    */
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    if (!id) {
+      throw new NotFoundException('Role ID is required.');
+    }
+
     // Check if role exists
     const role = await this.rolesService.findOne(+id);
     if (!role) {
       throw new NotFoundException(`Role with id {${id}} not found.`);
     }
 
-    // Return the role if it exists
-    return role;
+    // Normalize permissions
+    const normalizedPermissions = role.permissionRole.map((item) => ({
+      id: item.permission.id,
+      name: item.permission.name,
+      description: item.permission.description,
+      create: item.create,
+      read: item.read,
+      update: item.update,
+      delete: item.delete,
+    }));
+
+    // Add normalized permissions to role
+    const roleWithPermissions = { ...role, permissions: normalizedPermissions };
+
+    return roleWithPermissions;
   }
 
   /**

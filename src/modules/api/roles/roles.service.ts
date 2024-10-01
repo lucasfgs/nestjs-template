@@ -10,7 +10,19 @@ export class RolesService {
 
   create(createRoleDto: CreateRoleDto) {
     return this.prismaService.roles.create({
-      data: createRoleDto,
+      data: {
+        name: createRoleDto.name,
+        description: createRoleDto.description,
+        permissionRole: {
+          create: createRoleDto.permissions.map((permission) => ({
+            permission: { connect: { id: permission.permissionId } },
+            create: permission.create,
+            read: permission.read,
+            update: permission.update,
+            delete: permission.delete,
+          })),
+        },
+      },
     });
   }
 
@@ -31,6 +43,13 @@ export class RolesService {
       where: {
         id,
       },
+      include: {
+        permissionRole: {
+          include: {
+            permission: true,
+          },
+        },
+      },
     });
   }
 
@@ -39,7 +58,33 @@ export class RolesService {
       where: {
         id,
       },
-      data: updateRoleDto,
+      data: {
+        name: updateRoleDto.name,
+        description: updateRoleDto.description,
+        permissionRole: {
+          upsert: updateRoleDto.permissions.map((permission) => ({
+            where: {
+              roleId_permissionId: {
+                roleId: id,
+                permissionId: permission.permissionId,
+              },
+            },
+            update: {
+              create: permission.create,
+              read: permission.read,
+              update: permission.update,
+              delete: permission.delete,
+            },
+            create: {
+              permission: { connect: { id: permission.permissionId } },
+              create: permission.create,
+              read: permission.read,
+              update: permission.update,
+              delete: permission.delete,
+            },
+          })),
+        },
+      },
     });
   }
 

@@ -33,12 +33,22 @@ export class UsersService {
     return this.prismaService.users.findMany();
   }
 
-  findOne(id: string, options: { withRole: boolean } = null) {
+  findOne(id: string, options: { withPermissions: boolean } = null) {
     return this.prismaService.users.findUnique({
       where: { id },
-      include: {
-        role: options?.withRole || false,
-      },
+      ...(options?.withPermissions && {
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      }),
     });
   }
 

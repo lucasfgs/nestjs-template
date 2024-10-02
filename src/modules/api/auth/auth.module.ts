@@ -13,6 +13,8 @@ import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { PermissionGuard } from './guards/permission.guard';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { RefreshTokenService } from './refresh-token.service';
 
 @Module({
   imports: [
@@ -26,8 +28,10 @@ import { PermissionGuard } from './guards/permission.guard';
   ],
   providers: [
     AuthService,
+    RefreshTokenService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

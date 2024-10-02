@@ -14,15 +14,16 @@ datasource db {
 }
 
 model Users {
-  id           String         @id @default(cuid())
-  name         String         @db.VarChar(50)
-  email        String         @db.VarChar(100)
-  password     String         @db.VarChar(100)
-  created_at   DateTime       @default(now())
+  id           String          @id @default(cuid())
+  name         String          @db.VarChar(50)
+  email        String          @db.VarChar(100)
+  password     String          @db.VarChar(100)
+  created_at   DateTime        @default(now())
   updated_at   DateTime?
-  role         Roles          @relation(fields: [roleId], references: [id])
+  role         Roles           @relation(fields: [roleId], references: [id])
   roleId       Int
-  Subscription Subscription[]
+  Subscription Subscriptions[]
+  RefreshToken RefreshTokens[]
 }
 
 model Roles {
@@ -53,7 +54,7 @@ model PermissionRole {
   @@unique([roleId, permissionId])
 }
 
-model Subscription {
+model Subscriptions {
   id                   String    @id @default(cuid())
   name                 String
   userId               String
@@ -63,6 +64,17 @@ model Subscription {
   stripeSubscriptionId String
   createdAt            DateTime  @default(now())
   updatedAt            DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+}
+
+model RefreshTokens {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  expiresAt DateTime
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
 
   user Users @relation(fields: [userId], references: [id])
 }

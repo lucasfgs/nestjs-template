@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/modules/shared/email/email.service';
+import { normalizePermissions } from 'src/utils/normalizePermissions';
 
 import { UsersService } from '../users/users.service';
 import { User, UserWithoutPassword } from '../users/entity/user';
+
+import { RefreshTokenService } from './refresh-token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
     private emailService: EmailService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   async validateUser(
@@ -27,25 +29,16 @@ export class AuthService {
     return null;
   }
 
-  login(user: User): { accessToken: string } {
-    const normalizedPermissions = user.role?.permissionRole?.map(
-      (permissionRole) => ({
-        name: permissionRole.permission.name,
-        create: permissionRole.create,
-        read: permissionRole.read,
-        update: permissionRole.update,
-        delete: permissionRole.delete,
-      }),
-    );
+  async login(user: User) {
+    const normalizedPermissions = normalizePermissions(user);
+
     const payload = {
       email: user.email,
       sub: user.id,
       permissions: normalizedPermissions,
     };
 
-    return {
-      accessToken: this.jwtService.sign(payload),
-    };
+    return this.refreshTokenService.generateTokenPair(user, payload);
   }
 
   async forgotPassword(email: string): Promise<number> {

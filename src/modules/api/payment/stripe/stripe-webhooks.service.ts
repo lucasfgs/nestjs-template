@@ -40,7 +40,7 @@ export class StripeWebhooksService {
     }
 
     // Store a new subscription in the database
-    await this.prismaService.subscription.create({
+    await this.prismaService.subscriptions.create({
       data: {
         name: 'Subscription',
         userId: user.id,
@@ -57,7 +57,7 @@ export class StripeWebhooksService {
     const subscriptionId = event.data.object.subscription;
 
     // Get the subscription from the database
-    const storedSubscription = this.prismaService.subscription.findFirst({
+    const storedSubscription = this.prismaService.subscriptions.findFirst({
       where: {
         stripeSubscriptionId: String(subscriptionId),
       },
@@ -73,7 +73,7 @@ export class StripeWebhooksService {
     );
 
     // Update the subscription status
-    await this.prismaService.subscription.update({
+    await this.prismaService.subscriptions.update({
       where: {
         id: subscription.id,
       },
@@ -92,7 +92,7 @@ export class StripeWebhooksService {
     const subscriptionId = event.data.object.id;
 
     // Get the subscription from the database
-    const subscription = await this.prismaService.subscription.findFirst({
+    const subscription = await this.prismaService.subscriptions.findFirst({
       where: {
         stripeSubscriptionId: String(subscriptionId),
       },
@@ -103,7 +103,7 @@ export class StripeWebhooksService {
     }
 
     // Update the subscription status
-    await this.prismaService.subscription.update({
+    await this.prismaService.subscriptions.update({
       where: {
         id: subscription.id,
       },
@@ -129,7 +129,7 @@ export class StripeWebhooksService {
     }
 
     // Update the invoice status
-    await this.prismaService.subscription.update({
+    await this.prismaService.subscriptions.update({
       where: {
         id: invoice.id,
       },

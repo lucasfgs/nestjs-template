@@ -8,7 +8,7 @@ export class PaymentService {
   constructor(private prismaService: PrismaService) {}
 
   createSubscription(createSubscriptionDto: CreateSubscriptionDto) {
-    return this.prismaService.subscription.create({
+    return this.prismaService.subscriptions.create({
       data: createSubscriptionDto,
     });
   }

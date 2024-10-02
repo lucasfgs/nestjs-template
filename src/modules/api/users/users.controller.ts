@@ -60,7 +60,7 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id, {
-      withRole: true,
+      withPermissions: true,
     });
 
     if (!user) {

@@ -46,7 +46,7 @@ model PermissionRole {
   read         Boolean     @default(false)
   update       Boolean     @default(false)
   delete       Boolean     @default(false)
-  role         Roles       @relation(fields: [roleId], references: [id])
+  role         Roles       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId       Int
   permission   Permissions @relation(fields: [permissionId], references: [id])
   permissionId Int

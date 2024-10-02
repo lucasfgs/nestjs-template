@@ -88,7 +88,18 @@ export class RolesService {
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    // Check if there's a user with this role
+    const userWithRole = await this.prismaService.users.findFirst({
+      where: {
+        roleId: id,
+      },
+    });
+
+    if (userWithRole) {
+      throw new Error('Cannot delete role with users');
+    }
+
     return this.prismaService.roles.delete({
       where: {
         id,

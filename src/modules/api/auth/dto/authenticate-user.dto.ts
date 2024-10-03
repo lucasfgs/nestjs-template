@@ -27,13 +27,6 @@ export type TPermission = {
 };
 
 export interface IAuthenticatedUser {
-  userId: string;
-  email: string;
-  permissions: TPermission[] | null;
-}
-
-export interface IAccessTokenPayload {
   sub: string;
   email: string;
-  permissions: TPermission[];
 }

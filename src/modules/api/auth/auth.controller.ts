@@ -65,12 +65,9 @@ export class AuthController {
       throw new InternalServerErrorException();
     }
 
-    const normalizedPermissions = normalizePermissions(req.user);
-
     const payload = {
       email: req.user.email,
       sub: req.user.id,
-      permissions: normalizedPermissions,
     };
 
     return this.refreshToeknService.generateTokenPair(
@@ -84,7 +81,12 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('/me')
   async me(@Request() req) {
-    return req.user;
+    const user = await this.usersService.findOne(req.user.sub, {
+      withPermissions: true,
+    });
+    const permissions = normalizePermissions(user);
+
+    return { ...req.user, permissions };
   }
 
   @Public()

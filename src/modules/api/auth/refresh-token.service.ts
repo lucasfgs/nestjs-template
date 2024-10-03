@@ -6,7 +6,7 @@ import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 import { User } from '../users/entity/user';
 
 import { jwtConstants } from './constants';
-import { IAccessTokenPayload } from './dto/authenticate-user.dto';
+import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 
 @Injectable()
 export class RefreshTokenService {
@@ -58,7 +58,7 @@ export class RefreshTokenService {
 
   async generateTokenPair(
     user: User,
-    payload: IAccessTokenPayload,
+    payload: IAuthenticatedUser,
     currentRefreshToken?: string,
     currentRefreshTokenExpiresAt?: Date,
   ) {

@@ -13,7 +13,7 @@ async function bootstrap() {
     cors: {
       credentials: true,
       origin: 'http://localhost:3000',
-      methods: ['*'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     },
     rawBody: true,
   });

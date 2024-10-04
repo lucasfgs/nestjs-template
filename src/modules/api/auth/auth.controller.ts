@@ -65,9 +65,12 @@ export class AuthController {
       throw new InternalServerErrorException();
     }
 
+    const normalizedPermissions = normalizePermissions(req.user);
+
     const payload = {
       email: req.user.email,
       sub: req.user.id,
+      permissions: normalizedPermissions,
     };
 
     return this.refreshToeknService.generateTokenPair(

@@ -11,6 +11,7 @@ import { PermissionsModule } from '../api/permissions/permissions.module';
 import { PermissionRolesModule } from '../api/permission-roles/permission-roles.module';
 import { SseModule } from '../shared/sse/sse.module';
 import { PaymentModule } from '../api/payment/payment.module';
+import { EventsModule } from '../shared/events/events.module';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -30,6 +31,7 @@ import { AppController } from './app.controller';
     PermissionsModule,
     PermissionRolesModule,
     PaymentModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

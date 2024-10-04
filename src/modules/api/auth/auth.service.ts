@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from 'src/modules/shared/email/email.service';
+import { normalizePermissions } from 'src/utils/normalizePermissions';
 
 import { UsersService } from '../users/users.service';
 import { User, UserWithoutPassword } from '../users/entity/user';
@@ -29,9 +30,12 @@ export class AuthService {
   }
 
   async login(user: User) {
+    const normalizedPermissions = normalizePermissions(user);
+
     const payload = {
       email: user.email,
       sub: user.id,
+      permissions: normalizedPermissions,
     };
 
     return this.refreshTokenService.generateTokenPair(user, payload);

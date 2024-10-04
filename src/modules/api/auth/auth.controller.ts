@@ -70,6 +70,7 @@ export class AuthController {
     const payload = {
       email: req.user.email,
       sub: req.user.id,
+      role: req.user.role.name,
       permissions: normalizedPermissions,
     };
 

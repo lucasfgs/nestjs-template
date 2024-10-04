@@ -8,7 +8,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { AuthenticateWebsocketMiddleware } from 'src/middlewares/authenticate-websocket.middleware';
 
 @WebSocketGateway()
@@ -27,21 +27,23 @@ export class EventsGateway
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleConnection(client: any, ...args: any[]) {
+  handleConnection(client: Socket, ...args: any[]) {
     const { sockets } = this.io.sockets;
 
-    console.log('Client: ', client);
+    client.emit('connected', {
+      message: 'You are connected',
+    });
 
     this.logger.log(`Client id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: Socket) {
     this.logger.log(`Cliend id:${client.id} disconnected`);
   }
 
   @SubscribeMessage('ping')
-  handleMessage(client: any, data: any) {
+  handleMessage(client: Socket, data: any) {
     this.logger.log(`Message received from client id: ${client.id}`);
     this.logger.debug(`Payload: ${data}`);
     return {

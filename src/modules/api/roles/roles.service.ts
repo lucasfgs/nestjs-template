@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
+import { EventsGateway } from 'src/modules/shared/events/events.gateway';
 
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private eventsGateway: EventsGateway,
+  ) {}
 
   create(createRoleDto: CreateRoleDto) {
     return this.prismaService.roles.create({
@@ -53,8 +57,8 @@ export class RolesService {
     });
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return this.prismaService.roles.update({
+  async update(id: number, updateRoleDto: UpdateRoleDto) {
+    const updatedRole = await this.prismaService.roles.update({
       where: {
         id,
       },
@@ -85,7 +89,38 @@ export class RolesService {
           })),
         },
       },
+      include: {
+        permissionRole: {
+          include: {
+            permission: true,
+          },
+        },
+      },
     });
+
+    // Emit a websocket event to clients with the same role
+    this.eventsGateway.io.sockets.sockets.forEach(async (client) => {
+      // Check if the client's role matches
+      if (client.user.role.toLowerCase() === updatedRole.name.toLowerCase()) {
+        // Get the updated role with permissions from database
+        const permissions = updatedRole.permissionRole?.map(
+          (permissionRole) => ({
+            name: permissionRole.permission.name,
+            create: permissionRole.create,
+            read: permissionRole.read,
+            update: permissionRole.update,
+            delete: permissionRole.delete,
+          }),
+        );
+
+        // Emit the updated role with permissions to the client
+        client.emit('roles:update', {
+          permissions,
+        });
+      }
+    });
+
+    return updatedRole;
   }
 
   async remove(id: number) {

@@ -6,5 +6,6 @@ import { EventsGateway } from './events.gateway';
 @Module({
   providers: [EventsGateway],
   imports: [JwtModule],
+  exports: [EventsGateway],
 })
 export class EventsModule {}

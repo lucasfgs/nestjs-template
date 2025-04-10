@@ -9,7 +9,7 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SseService } from 'src/modules/shared/sse/sse.service';
 import { AllowPermissions } from 'src/decorators/AllowPermissions';
 
@@ -20,6 +20,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+@ApiTags('users')
 @ApiBearerAuth()
 @AllowPermissions(EPermission.USERS)
 @Controller('users')

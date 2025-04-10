@@ -9,7 +9,7 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { PermissionsService } from '../permissions/permissions.service';
 import { RolesService } from '../roles/roles.service';
@@ -18,6 +18,7 @@ import { PermissionRolesService } from './permission-roles.service';
 import { CreatePermissionRoleDto } from './dto/create-permission-role.dto';
 import { UpdatePermissionRoleDto } from './dto/update-permission-role.dto';
 
+@ApiTags('permission-roles')
 @ApiBearerAuth()
 @Controller('permissions/:permissionId/roles/:roleId')
 export class PermissionRolesController {

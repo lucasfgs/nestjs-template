@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Public } from 'src/decorators/Public';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
 
@@ -29,6 +29,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { RefreshTokenService } from './refresh-token.service';
 
+@ApiTags('auth')
 @Controller('')
 export class AuthController {
   constructor(

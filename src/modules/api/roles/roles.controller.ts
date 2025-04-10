@@ -9,12 +9,13 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
+@ApiTags('roles')
 @ApiBearerAuth()
 @Controller('roles')
 export class RolesController {

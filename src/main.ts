@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from '@interceptors/http-exception.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -21,6 +22,7 @@ async function bootstrap() {
 
   // Middlewares
   app.useGlobalPipes(new ValidationPipe(validatorOptions));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .addBearerAuth()

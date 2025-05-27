@@ -89,7 +89,27 @@ module.exports = {
             position: 'before',
           },
           {
+            pattern: '@decorators/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
+            pattern: '@interceptors/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
+            pattern: '@middlewares/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
             pattern: '@modules/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
+            pattern: '@utils/**',
             group: 'internal',
             position: 'before',
           },

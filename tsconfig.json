@@ -22,7 +22,8 @@
       "@middlewares/*": ["src/middlewares/*"],
       "@decorators/*": ["src/decorators/*"],
       "@configs/*": ["src/configs/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@interceptors/*": ["src/interceptors/*"]
     }
   }
 }

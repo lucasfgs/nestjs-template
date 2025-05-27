@@ -7,6 +7,7 @@ import session from 'express-session';
 import { validatorOptions } from '@configs/validator-options';
 
 import { sessionConstants } from '@modules/api/core/auth/constants';
+import { LoggerService } from '@modules/api/core/logging/logger.service';
 import { AppModule } from '@modules/app/app.module';
 
 async function bootstrap() {
@@ -20,9 +21,12 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  // Get logger instance
+  const logger = app.get(LoggerService);
+
   // Middlewares
   app.useGlobalPipes(new ValidationPipe(validatorOptions));
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
 
   const config = new DocumentBuilder()
     .addBearerAuth()

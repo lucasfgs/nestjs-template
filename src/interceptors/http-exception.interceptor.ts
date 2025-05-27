@@ -4,13 +4,14 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
+import { LoggerService } from '@modules/api/core/logging/logger.service';
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  constructor(private readonly logger: LoggerService) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -35,10 +36,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message: message,
     };
 
-    // Log the error
+    // Log the error with context
     this.logger.error(
-      `${request.method} ${request.url}`,
+      `[${request.method}] ${request.url} - ${status}`,
       exception instanceof Error ? exception.stack : null,
+      'HttpException',
+    );
+
+    // Log request details for debugging
+    this.logger.debug(
+      `Request Body: ${JSON.stringify(request.body)}\nRequest Query: ${JSON.stringify(
+        request.query,
+      )}\nRequest Params: ${JSON.stringify(request.params)}`,
+      'HttpException',
     );
 
     response.status(status).json(errorResponse);

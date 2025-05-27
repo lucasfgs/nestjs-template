@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+const isProduction = process.env.NODE_ENV === 'production';
 
 async function main() {
   console.log('🌱 Starting database seeding...');
@@ -89,6 +91,26 @@ async function main() {
     skipDuplicates: true,
   });
   console.log('✅ Role permissions seeded successfully');
+
+  // Only create admin user in development environment
+  if (!isProduction) {
+    console.log('📝 Creating admin user (development only)...');
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await prisma.users.upsert({
+      where: { id: 'admin-user' },
+      update: {},
+      create: {
+        id: 'admin-user',
+        email: 'admin@example.com',
+        name: 'Admin User',
+        password: hashedPassword,
+        roleId: 1, // Admin role
+      },
+    });
+    console.log('✅ Admin user created successfully');
+  } else {
+    console.log('ℹ️ Skipping admin user creation in production environment');
+  }
 
   console.log('🎉 Database seeding completed successfully!');
 }

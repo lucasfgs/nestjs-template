@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+
 import { EmailService } from 'src/modules/shared/email/email.service';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
 
-import { UsersService } from '../users/users.service';
 import { User, UserWithoutPassword } from '../users/entity/user';
+import { UsersService } from '../users/users.service';
 
 import { RefreshTokenService } from './refresh-token.service';
 

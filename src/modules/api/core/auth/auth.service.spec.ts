@@ -1,18 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { APP_GUARD } from '@nestjs/core';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
 
 import { UsersModule } from '../users/users.module';
 
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { jwtConstants } from './constants';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { AuthController } from './auth.controller';
 import { PermissionGuard } from './guards/permission.guard';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
 
-import { RolesService } from './roles.service';
 import { RolesController } from './roles.controller';
+import { RolesService } from './roles.service';
 
 describe('RolesService', () => {
   let service: RolesService;

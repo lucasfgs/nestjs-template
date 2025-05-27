@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+
 import { AuthenticateWebsocketMiddleware } from 'src/middlewares/authenticate-websocket.middleware';
 
 @WebSocketGateway()

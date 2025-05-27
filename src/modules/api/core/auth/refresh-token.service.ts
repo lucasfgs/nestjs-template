@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
+
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
 import { User } from '../users/entity/user';

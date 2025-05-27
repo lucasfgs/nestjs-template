@@ -13,20 +13,21 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { Public } from 'src/decorators/Public';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+
+import { Public } from 'src/decorators/Public';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
 
 import { UsersService } from '../users/users.service';
 
-import { AuthenticateUserDto } from './dto/authenticate-user.dto';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local.guard';
+import { AuthenticateUserDto } from './dto/authenticate-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { VerifyPasswordCodeDto } from './dto/verify-password-code.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyPasswordCodeDto } from './dto/verify-password-code.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { LocalAuthGuard } from './guards/local.guard';
 import { RefreshTokenService } from './refresh-token.service';
 
 @ApiTags('auth')

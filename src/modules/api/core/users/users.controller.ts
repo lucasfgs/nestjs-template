@@ -10,15 +10,16 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { SseService } from 'src/modules/shared/sse/sse.service';
+
 import { AllowPermissions } from 'src/decorators/AllowPermissions';
+import { SseService } from 'src/modules/shared/sse/sse.service';
 
-import { RolesService } from '../roles/roles.service';
 import { EPermission } from '../permissions/entities/permission.entity';
+import { RolesService } from '../roles/roles.service';
 
-import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @ApiTags('users')
 @ApiBearerAuth()

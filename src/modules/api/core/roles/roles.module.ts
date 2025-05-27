@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+
 import { EventsModule } from 'src/modules/shared/events/events.module';
 
-import { RolesService } from './roles.service';
 import { RolesController } from './roles.controller';
+import { RolesService } from './roles.service';
 
 @Module({
   controllers: [RolesController],

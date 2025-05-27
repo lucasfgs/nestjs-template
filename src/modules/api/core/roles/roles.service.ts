@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
+
 import { EventsGateway } from 'src/modules/shared/events/events.gateway';
+import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';

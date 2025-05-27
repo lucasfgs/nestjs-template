@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
 
 import { RolesController } from './roles.controller';

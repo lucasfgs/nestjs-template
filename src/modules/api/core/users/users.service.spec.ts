@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+
 import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 
 import { RolesModule } from '../roles/roles.module';
 
-import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 jest.mock('bcrypt', () => ({
   hashSync: jest.fn().mockReturnValue('hashedPassword'),

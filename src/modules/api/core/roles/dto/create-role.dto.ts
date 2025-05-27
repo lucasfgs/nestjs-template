@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-import { Role } from '../entities/role.entity';
 import { PermissionRole } from '../../permission-roles/entities/permission-role.entity';
+import { Role } from '../entities/role.entity';
 
 interface IPermission extends Partial<PermissionRole> {}
 

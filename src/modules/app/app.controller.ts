@@ -1,6 +1,6 @@
 import { Controller, Get, Sse } from '@nestjs/common';
-import { fromEvent, map, Observable } from 'rxjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { fromEvent, map, Observable } from 'rxjs';
 
 import { AppService } from './app.service';
 

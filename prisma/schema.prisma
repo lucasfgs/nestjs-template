@@ -24,6 +24,8 @@ model Users {
   roleId       Int
   Subscription Subscriptions[]
   RefreshToken RefreshTokens[]
+
+  @@map("users")
 }
 
 model Roles {
@@ -32,6 +34,8 @@ model Roles {
   description    String           @default("") @db.VarChar(300)
   users          Users[]
   permissionRole PermissionRole[]
+
+  @@map("roles")
 }
 
 model Permissions {
@@ -39,6 +43,8 @@ model Permissions {
   name           String           @db.VarChar(50)
   description    String           @default("") @db.VarChar(300)
   permissionRole PermissionRole[]
+
+  @@map("permissions")
 }
 
 model PermissionRole {
@@ -52,6 +58,7 @@ model PermissionRole {
   permissionId Int
 
   @@unique([roleId, permissionId])
+  @@map("permission_role")
 }
 
 model Subscriptions {
@@ -66,6 +73,8 @@ model Subscriptions {
   updatedAt            DateTime?
 
   user Users @relation(fields: [userId], references: [id])
+
+  @@map("subscriptions")
 }
 
 model RefreshTokens {
@@ -77,4 +86,6 @@ model RefreshTokens {
   updatedAt DateTime?
 
   user Users @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
 }

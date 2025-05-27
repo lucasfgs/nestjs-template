@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { EPermission } from 'src/modules/api/permissions/entities/permission.entity';
+import { EPermission } from '@modules/api/core/permissions/entities/permission.entity';
 
 export const ALLOW_PERMISSIONS = 'allowPermissions';
 export const AllowPermissions = (...allowedPermissions: EPermission[]) =>

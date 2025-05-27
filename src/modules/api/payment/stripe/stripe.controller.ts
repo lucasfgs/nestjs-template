@@ -8,14 +8,17 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
 import { Public } from 'src/decorators/Public';
 
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '../../core/users/users.service';
 
-import { StripeService } from './stripe.service';
 import { StripeWebhooksService } from './stripe-webhooks.service';
+import { StripeService } from './stripe.service';
 
 @Public()
+@ApiTags('stripe')
 @Controller('payments/stripe')
 export class StripeController {
   constructor(

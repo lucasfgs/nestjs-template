@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import Stripe from 'stripe';
-import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '@modules/api/core/users/users.service';
+import { PrismaService } from '@modules/shared/prisma/prisma.service';
 
 import { StripeService } from './stripe.service';
 

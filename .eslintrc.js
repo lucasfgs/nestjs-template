@@ -16,6 +16,14 @@ module.exports = {
     jest: true,
   },
   ignorePatterns: ['.eslintrc.js'],
+  settings: {
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: './tsconfig.json',
+      },
+    },
+  },
   rules: {
     'no-console': 'warn',
     'no-return-await': 'error',
@@ -71,8 +79,26 @@ module.exports = {
           'parent',
           'sibling',
           'index',
+          'object',
+          'type',
+        ],
+        pathGroups: [
+          {
+            pattern: '@configs/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
+            pattern: '@modules/**',
+            group: 'internal',
+            position: 'before',
+          },
         ],
         'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
       },
     ],
   },

@@ -1,6 +1,6 @@
 # Backend API
 
-A NestJS-based backend API with authentication, role-based access control, and more.
+A NestJS-based backend API with authentication, role-based access control, and more. This is part of a full-stack application with a [Next.js frontend](https://github.com/lucasfgs/nextjs14-dashboard-with-nest-api-template).
 
 ## Features
 

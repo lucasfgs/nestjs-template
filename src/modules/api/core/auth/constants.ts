@@ -1,10 +1,17 @@
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const jwtConstants = {
-  secret: 'Pr0j3ctS3cr3tK3y!',
-  expiresIn: '10s',
-  refreshSecret: 'Pr0j3ctR3fr3shS3cr3tK3y!',
-  refreshExpiresIn: '30d',
+  accessExpiresIn: 15 * 1000, // 5 seconds
+  refreshExpiresIn: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-export const sessionConstants = {
-  secret: 'Pr0j3ctS3cr3tK3y!',
+export const sessionConstants = {};
+
+export const cookieConstants = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? ('none' as const) : ('lax' as const),
+  maxAge: jwtConstants.refreshExpiresIn,
+  path: '/',
+  domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
 };

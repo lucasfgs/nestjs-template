@@ -2,6 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Method } from 'axios';
 
+import { IS_PUBLIC_KEY } from '@decorators/Public';
+
 import { ALLOW_PERMISSIONS } from 'src/decorators/AllowPermissions';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
 
@@ -29,11 +31,19 @@ export class PermissionGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     if (!allowedPermissions) return true;
 
     const { user, method } = context
       .switchToHttp()
-      .getRequest<{ user: IAuthenticatedUser; method: Method }>();
+      .getRequest<{ user: IAuthenticatedUser | null; method: Method }>();
+
+    if (!user) return false;
 
     const storedUser = await this.usersService.findOne(user.sub, {
       withPermissions: true,

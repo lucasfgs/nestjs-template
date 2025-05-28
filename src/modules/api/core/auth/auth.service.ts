@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { EmailService } from 'src/modules/shared/email/email.service';
-import { normalizePermissions } from 'src/utils/normalizePermissions';
 
-import { User, UserWithoutPassword } from '../users/entity/user';
+import { User } from '../users/entity/user';
 import { UsersService } from '../users/users.service';
 
+import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 import { RefreshTokenService } from './refresh-token.service';
 
 @Injectable()
@@ -17,30 +17,20 @@ export class AuthService {
     private refreshTokenService: RefreshTokenService,
   ) {}
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<UserWithoutPassword | null> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email, true);
     if (user && bcrypt.compareSync(password, user.password)) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result as UserWithoutPassword;
+      return user;
     }
     return null;
   }
 
-  async login(user: User) {
-    const normalizedPermissions = normalizePermissions(user);
+  async login(payload: IAuthenticatedUser) {
+    return this.refreshTokenService.generateTokenPair(payload.sub, payload);
+  }
 
-    const payload = {
-      email: user.email,
-      sub: user.id,
-      role: user.role.name,
-      permissions: normalizedPermissions,
-    };
-
-    return this.refreshTokenService.generateTokenPair(user, payload);
+  async refreshTokens(payload: IAuthenticatedUser) {
+    return this.refreshTokenService.generateTokenPair(payload.sub, payload);
   }
 
   async forgotPassword(email: string): Promise<number> {

@@ -1,4 +1,4 @@
-import { TPermission } from 'src/modules/api/auth/dto/authenticate-user.dto';
+import { TPermission } from '@modules/api/core/auth/dto/authenticate-user.dto';
 
 import { User } from 'src/modules/api/core/users/entity/user';
 

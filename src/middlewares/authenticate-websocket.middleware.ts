@@ -1,7 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 
-import { jwtConstants } from '@modules/api/core/auth/constants';
 import { IAuthenticatedUser } from '@modules/api/core/auth/dto/authenticate-user.dto';
 import { JwtStrategy } from '@modules/api/core/auth/strategies/jwt.strategy';
 
@@ -22,7 +21,7 @@ export const AuthenticateWebsocketMiddleware = (
 
       try {
         payload = await jwtService.verifyAsync<IAuthenticatedUser>(token, {
-          secret: jwtConstants.secret,
+          secret: process.env.JWT_ACCESS_SECRET,
         });
       } catch (error) {
         throw new Error('Authorization token is invalid');

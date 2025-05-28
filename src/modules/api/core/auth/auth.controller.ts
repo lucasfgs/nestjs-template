@@ -5,16 +5,17 @@ import {
   GoneException,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Post,
   Request,
+  Response,
   Session,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { Response as ExpressResponse } from 'express';
 
 import { Public } from 'src/decorators/Public';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
@@ -22,16 +23,18 @@ import { normalizePermissions } from 'src/utils/normalizePermissions';
 import { UsersService } from '../users/users.service';
 
 import { AuthService } from './auth.service';
+import { cookieConstants, jwtConstants } from './constants';
 import { AuthenticateUserDto } from './dto/authenticate-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyPasswordCodeDto } from './dto/verify-password-code.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { JwtAuthGuard } from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 import { RefreshTokenService } from './refresh-token.service';
 
 @ApiTags('auth')
-@Controller('')
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -39,52 +42,57 @@ export class AuthController {
     private refreshToeknService: RefreshTokenService,
   ) {}
 
-  @Throttle({
-    short: { limit: 2, ttl: 1000 },
-    long: { limit: 5, ttl: 60000 },
-  })
+  @Throttle({ short: { limit: 2, ttl: 1000 }, long: { limit: 5, ttl: 60000 } })
   @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
+  @Post('login')
   async login(
-    @Body() authenticateUserDto: AuthenticateUserDto,
     @Request() req,
+    @Response({ passthrough: true }) res: ExpressResponse,
+    @Body() _dto: AuthenticateUserDto,
   ) {
-    return this.authService.login(req.user);
+    const { accessToken, refreshToken } = await this.authService.login(
+      req.user,
+    );
+
+    res.cookie('refreshToken', refreshToken, cookieConstants);
+
+    res.cookie('accessToken', accessToken, {
+      ...cookieConstants,
+      httpOnly: false,
+      maxAge: jwtConstants.accessExpiresIn,
+    });
+
+    return req.user;
   }
 
-  @Throttle({
-    short: { limit: 1, ttl: 1000 },
-    long: { limit: 2, ttl: 60000 },
-  })
-  @ApiBearerAuth()
+  @Throttle({ short: { limit: 1, ttl: 1000 }, long: { limit: 2, ttl: 60000 } })
   @Public()
   @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  refreshTokens(@Request() req) {
-    if (!req.user) {
-      throw new InternalServerErrorException();
-    }
-
-    const normalizedPermissions = normalizePermissions(req.user);
-
-    const payload = {
-      email: req.user.email,
-      sub: req.user.id,
-      role: req.user.role.name,
-      permissions: normalizedPermissions,
-    };
-
-    return this.refreshToeknService.generateTokenPair(
+  async refresh(
+    @Request() req,
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(
       req.user,
-      payload,
-      req.headers.authorization?.split(' ')[1],
-      req.user.refreshTokenExpiresAt,
     );
+
+    res.cookie('refreshToken', refreshToken, cookieConstants);
+
+    res.cookie('accessToken', accessToken, {
+      ...cookieConstants,
+      httpOnly: false,
+      maxAge: jwtConstants.accessExpiresIn,
+    });
+
+    return req.user;
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('/me')
   async me(@Request() req) {
     const user = await this.usersService.findOne(req.user.sub, {
@@ -93,6 +101,15 @@ export class AuthController {
     const permissions = normalizePermissions(user);
 
     return { ...req.user, permissions };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Response({ passthrough: true }) res: ExpressResponse) {
+    res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('accessToken', { path: '/' });
   }
 
   @Public()

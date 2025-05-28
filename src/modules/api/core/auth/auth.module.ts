@@ -22,8 +22,8 @@ import { LocalStrategy } from './strategies/local.strategy';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn },
+      secret: process.env.JWT_ACCESS_SECRET,
+      signOptions: { expiresIn: jwtConstants.accessExpiresIn },
     }),
     EmailModule,
   ],
@@ -43,5 +43,6 @@ import { LocalStrategy } from './strategies/local.strategy';
     },
   ],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}

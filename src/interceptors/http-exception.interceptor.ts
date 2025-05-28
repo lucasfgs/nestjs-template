@@ -36,20 +36,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message: message,
     };
 
-    // Log the error with context
-    this.logger.error(
-      `[${request.method}] ${request.url} - ${status}`,
-      exception instanceof Error ? exception.stack : null,
-      'HttpException',
-    );
+    // Only log 500 errors
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(
+        `[${request.method}] ${request.url} - ${status}`,
+        exception instanceof Error ? exception.stack : null,
+        'HttpException',
+      );
 
-    // Log request details for debugging
-    this.logger.debug(
-      `Request Body: ${JSON.stringify(request.body)}\nRequest Query: ${JSON.stringify(
-        request.query,
-      )}\nRequest Params: ${JSON.stringify(request.params)}`,
-      'HttpException',
-    );
+      this.logger.debug(
+        `Request Body: ${JSON.stringify(request.body)}\nRequest Query: ${JSON.stringify(
+          request.query,
+        )}\nRequest Params: ${JSON.stringify(request.params)}`,
+        'HttpException',
+      );
+    }
 
     response.status(status).json(errorResponse);
   }

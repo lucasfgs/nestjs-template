@@ -2,24 +2,39 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+import { normalizePermissions } from '@utils/normalizePermissions';
+
 import { UsersService } from '../../users/users.service';
-import { jwtConstants } from '../constants';
+import { IAuthenticatedUser } from '../dto/authenticate-user.dto';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private userService: UsersService) {
+  constructor(private usersService: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.refreshToken;
+        },
+      ]),
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.refreshSecret,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
-    const authUser = await this.userService.findOne(payload.sub, {
+  async validate(
+    req: any,
+    payload: IAuthenticatedUser,
+  ): Promise<IAuthenticatedUser> {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    const authUser = await this.usersService.findOne(payload.sub, {
       withPermissions: true,
     });
     if (!authUser) {
@@ -27,8 +42,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     return {
-      ...authUser,
-      refreshTokenExpiresAt: new Date(payload.exp * 1000),
+      sub: authUser.id,
+      email: authUser.email,
+      role: authUser.role.name,
+      permissions: normalizePermissions(authUser),
     };
   }
 }

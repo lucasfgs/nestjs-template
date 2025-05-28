@@ -11,6 +11,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { AllowPermissions } from '@decorators/AllowPermissions';
+
+import { EPermission } from '../permissions/entities/permission.entity';
+
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RolesService } from './roles.service';
@@ -18,6 +22,7 @@ import { RolesService } from './roles.service';
 @ApiTags('roles')
 @ApiBearerAuth()
 @Controller('roles')
+@AllowPermissions(EPermission.ROLES)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 

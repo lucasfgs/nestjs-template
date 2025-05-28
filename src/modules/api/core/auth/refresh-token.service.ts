@@ -4,8 +4,6 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
-import { User } from '../users/entity/user';
-
 import { jwtConstants } from './constants';
 import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 
@@ -24,7 +22,7 @@ export class RefreshTokenService {
     const newRefreshToken = this.jwtService.sign(
       { sub: authUserId },
       {
-        secret: jwtConstants.refreshSecret,
+        secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: jwtConstants.refreshExpiresIn,
       },
     );
@@ -58,7 +56,7 @@ export class RefreshTokenService {
   }
 
   async generateTokenPair(
-    user: User,
+    userId: string,
     payload: IAuthenticatedUser,
     currentRefreshToken?: string,
     currentRefreshTokenExpiresAt?: Date,
@@ -66,7 +64,7 @@ export class RefreshTokenService {
     return {
       accessToken: this.jwtService.sign(payload), // jwt module is configured in auth.module.ts for access token
       refreshToken: await this.generateRefreshToken(
-        user.id,
+        userId,
         currentRefreshToken,
         currentRefreshTokenExpiresAt,
       ),

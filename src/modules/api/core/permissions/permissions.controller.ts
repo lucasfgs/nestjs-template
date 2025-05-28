@@ -11,10 +11,13 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { Public } from '@decorators/Public';
+
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionsService } from './permissions.service';
 
+@Public()
 @ApiBearerAuth()
 @ApiTags('permissions')
 @Controller('permissions')

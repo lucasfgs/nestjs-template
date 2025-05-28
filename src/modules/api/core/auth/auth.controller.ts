@@ -23,7 +23,7 @@ import { normalizePermissions } from 'src/utils/normalizePermissions';
 import { UsersService } from '../users/users.service';
 
 import { AuthService } from './auth.service';
-import { cookieConstants, jwtConstants } from './constants';
+import { cookieConstants } from './constants';
 import { AuthenticateUserDto } from './dto/authenticate-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -61,7 +61,6 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       ...cookieConstants,
       httpOnly: false,
-      maxAge: jwtConstants.accessExpiresIn,
     });
 
     return req.user;
@@ -85,7 +84,6 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       ...cookieConstants,
       httpOnly: false,
-      maxAge: jwtConstants.accessExpiresIn,
     });
 
     return req.user;

@@ -1,0 +1,10 @@
+{
+    "includes": "docs",
+    "port": 5000,
+    "theme": "stripe",
+    "name": "NestJS Documentation",
+    "version": "1.0.0",
+    "logo": "https://nestjs.com/img/logo-small.svg",
+    "hideGenerator": true,
+    "disableCoverage": true
+}

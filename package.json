@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "start:docs": "npx @compodoc/compodoc -p tsconfig.json -s --port 5000",
+    "start:docs": "npx @compodoc/compodoc -p tsconfig.json -s --config compodoc.json",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

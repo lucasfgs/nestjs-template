@@ -1,0 +1,12 @@
+[
+    {
+        "title": "Guides",
+        "file": "guides/index.md",
+        "children": [
+            {
+                "title": "Authentication Flow",
+                "file": "guides/authentication-flow.md"
+            }
+        ]
+    }
+]

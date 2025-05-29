@@ -27,7 +27,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: Profile,
   ): Promise<IAuthenticatedUser> {
-    console.log(profile);
     const user = await this.authService.validateOAuthLogin({
       provider: Provider.GOOGLE,
       profileId: profile.id,

@@ -1,11 +1,15 @@
 [
     {
-        "title": "Guides",
-        "file": "guides/index.md",
+        "title": "Authentication",
+        "file": "authentication/index.md",
         "children": [
             {
                 "title": "Authentication Flow",
-                "file": "guides/authentication-flow.md"
+                "file": "authentication/authentication-flow.md"
+            },
+            {
+                "title": "Google OAuth",
+                "file": "authentication/google-oauth.md"
             }
         ]
     }

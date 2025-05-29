@@ -28,6 +28,7 @@ async function main() {
         description: 'The role that can change everything.',
       },
       { id: 2, name: 'Guest', description: 'Just a simple user' },
+      { id: 3, name: 'Google', description: 'Google user' },
     ],
     skipDuplicates: true,
   });
@@ -87,6 +88,32 @@ async function main() {
         update: true,
         delete: true,
       },
+
+      // Google (roleId = 3)
+      {
+        roleId: 3,
+        permissionId: 1,
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
+      {
+        roleId: 3,
+        permissionId: 2,
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
+      {
+        roleId: 3,
+        permissionId: 3,
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
     ],
     skipDuplicates: true,
   });
@@ -97,10 +124,10 @@ async function main() {
     console.log('📝 Creating admin user (development only)...');
     const hashedPassword = await bcrypt.hash('admin123', 10);
     await prisma.users.upsert({
-      where: { id: '9caa1a04-4c32-4de3-b8ac-20b590809606' },
+      where: { id: 'cmb8y4h3b0000f5mi939mpsax' },
       update: {},
       create: {
-        id: '9caa1a04-4c32-4de3-b8ac-20b590809606',
+        id: 'cmb8y4h3b0000f5mi939mpsax',
         email: 'admin@example.com',
         name: 'Admin User',
         password: hashedPassword,

@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import passport from 'passport';
 
 import { validatorOptions } from '@configs/validator-options';
 
@@ -14,6 +15,7 @@ import { AppModule } from '@modules/app/app.module';
 import { CookieIoAdapter } from './adapters/cookie-io.adapter';
 
 async function bootstrap() {
+  const isProduction = process.env.NODE_ENV === 'production';
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
     cors: {
@@ -31,18 +33,22 @@ async function bootstrap() {
 
   // Middlewares
   app.use(cookieParser());
+  app.use(passport.initialize());
   app.useWebSocketAdapter(new CookieIoAdapter(app));
   app.useGlobalPipes(new ValidationPipe(validatorOptions));
   app.useGlobalFilters(new HttpExceptionFilter(logger));
 
-  const config = new DocumentBuilder()
-    .addBearerAuth()
-    .setTitle('API example')
-    .setDescription('This is an API example')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  // Swagger
+  if (!isProduction) {
+    const config = new DocumentBuilder()
+      .addBearerAuth()
+      .setTitle('API example')
+      .setDescription('This is an API example')
+      .setVersion('1.0')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('docs', app, document);
+  }
 
   // Session middleware
   if (process.env.SESSION_SECRET) {
@@ -51,6 +57,9 @@ async function bootstrap() {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
+        cookie: {
+          secure: isProduction,
+        },
       }),
     );
   }

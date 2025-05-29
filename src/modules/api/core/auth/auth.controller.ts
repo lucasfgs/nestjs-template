@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   GoneException,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Post,
+  Req,
   Request,
+  Res,
   Response,
   Session,
   UnauthorizedException,
@@ -21,10 +24,14 @@ import { UsersService } from '../users/users.service';
 
 import { AuthService } from './auth.service';
 import { cookieConstants } from './constants';
-import { AuthenticateUserDto } from './dto/authenticate-user.dto';
+import {
+  AuthenticateUserDto,
+  IAuthenticatedUser,
+} from './dto/authenticate-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyPasswordCodeDto } from './dto/verify-password-code.dto';
+import { GoogleAuthGuard } from './guards/google.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
@@ -84,6 +91,33 @@ export class AuthController {
   async logout(@Response({ passthrough: true }) res: ExpressResponse) {
     res.clearCookie('refreshToken', { path: cookieConstants.refresh.path });
     res.clearCookie('accessToken', { path: cookieConstants.access.path });
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth() {}
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallback(
+    @Req() req,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const userPayload = req.user as IAuthenticatedUser;
+
+    const { accessToken, refreshToken } =
+      await this.refreshToeknService.generateTokenPair(
+        userPayload.sub,
+        userPayload,
+        req.cookies['refreshToken'],
+      );
+
+    res.cookie('refreshToken', refreshToken, cookieConstants.refresh);
+    res.cookie('accessToken', accessToken, cookieConstants.access);
+
+    return res.redirect(`${process.env.APP_URL}/dashboard`);
   }
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { EmailService } from 'src/modules/shared/email/email.service';
@@ -26,6 +27,41 @@ export class AuthService {
       return user;
     }
     return null;
+  }
+
+  async validateOAuthLogin({
+    provider,
+    profileId,
+    email,
+    displayName,
+    roleId,
+  }: {
+    provider: Provider;
+    profileId: string;
+    email: string;
+    displayName: string;
+    roleId: number;
+  }): Promise<User> {
+    // Find or create user
+    let user = await this.usersService.findByProvider(provider, profileId, {
+      withPermissions: true,
+    });
+
+    if (!user) {
+      user = await this.usersService.create(
+        {
+          email,
+          name: displayName,
+          provider,
+          providerId: profileId,
+          roleId,
+        },
+        {
+          withPermissions: true,
+        },
+      );
+    }
+    return user;
   }
 
   async login(payload: IAuthenticatedUser) {

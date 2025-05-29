@@ -17,11 +17,14 @@ model Users {
   id           String          @id @default(cuid())
   name         String          @db.VarChar(50)
   email        String          @db.VarChar(100)
-  password     String          @db.VarChar(100)
+  password     String?         @db.VarChar(100)
   created_at   DateTime        @default(now())
   updated_at   DateTime?
   role         Roles           @relation(fields: [roleId], references: [id])
   roleId       Int
+  provider     Provider?       @default(LOCAL)
+  providerId   String?         @unique
+
   Subscription Subscriptions[]
   RefreshToken RefreshTokens[]
 
@@ -88,4 +91,9 @@ model RefreshTokens {
   user Users @relation(fields: [userId], references: [id])
 
   @@map("refresh_tokens")
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
 }

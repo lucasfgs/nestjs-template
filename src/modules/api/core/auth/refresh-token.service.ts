@@ -4,81 +4,107 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
-import { jwtConstants } from './constants';
+import { jwtConstants, cookieConstants } from './constants';
 import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 
+/**
+ * Service to manage refresh tokens with a whitelist approach.
+ * On login: generates and stores a new refresh token.
+ * On refresh: validates and deletes the old token, then issues and stores a new one.
+ */
 @Injectable()
 export class RefreshTokenService {
   constructor(
     private jwtService: JwtService,
-    private prismaService: PrismaService,
+    private prisma: PrismaService,
   ) {}
 
-  async generateRefreshToken(
-    authUserId: string,
-    currentRefreshToken?: string,
-    currentRefreshTokenExpiresAt?: Date,
-  ) {
+  /**
+   * Generate a new refresh token and store it in the database.
+   * If an existing refresh token is provided, validate and remove it first (rotate).
+   */
+  async rotateRefreshToken(
+    userId: string,
+    currentToken?: string,
+  ): Promise<string> {
+    // If a current refresh token is provided, validate and remove it
+    if (currentToken) {
+      const existing = await this.prisma.refreshTokens.findFirst({
+        where: { token: currentToken, userId },
+      });
+
+      if (!existing || existing.expiresAt < new Date()) {
+        throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+      // Whitelist model: delete the old token
+      await this.prisma.refreshTokens.delete({
+        where: { id: existing.id },
+      });
+    }
+
+    // Sign a new JWT refresh token
     const newRefreshToken = this.jwtService.sign(
-      { sub: authUserId },
+      { sub: userId },
       {
         secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: jwtConstants.refreshExpiresIn,
       },
     );
 
-    if (currentRefreshToken && currentRefreshTokenExpiresAt) {
-      if (
-        await this.isRefreshTokenBlackListed(currentRefreshToken, authUserId)
-      ) {
-        throw new UnauthorizedException('Invalid refresh token.');
-      }
+    // Compute expiration date
+    const maxAgeMs = cookieConstants.refresh.maxAge;
+    const expiresAt = new Date(Date.now() + maxAgeMs);
 
-      await this.prismaService.refreshTokens.create({
-        data: {
-          token: currentRefreshToken,
-          expiresAt: currentRefreshTokenExpiresAt,
-          userId: authUserId,
-        },
-      });
-    }
+    // Store in whitelist table
+    await this.prisma.refreshTokens.create({
+      data: {
+        token: newRefreshToken,
+        userId,
+        expiresAt,
+      },
+    });
 
     return newRefreshToken;
   }
 
-  private isRefreshTokenBlackListed(token: string, userId: string) {
-    return this.prismaService.refreshTokens.findFirst({
-      where: {
-        token,
-        userId,
-      },
-    });
-  }
-
+  /**
+   * Generate both access and refresh tokens (login or refresh flow).
+   */
   async generateTokenPair(
     userId: string,
     payload: IAuthenticatedUser,
     currentRefreshToken?: string,
-    currentRefreshTokenExpiresAt?: Date,
-  ) {
-    return {
-      accessToken: this.jwtService.sign(payload), // jwt module is configured in auth.module.ts for access token
-      refreshToken: await this.generateRefreshToken(
-        userId,
-        currentRefreshToken,
-        currentRefreshTokenExpiresAt,
-      ),
-    };
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: jwtConstants.accessExpiresIn,
+    });
+
+    const refreshToken = await this.rotateRefreshToken(
+      userId,
+      currentRefreshToken,
+    );
+
+    return { accessToken, refreshToken };
   }
 
+  async findTokenRecord(token: string, userId: string) {
+    return this.prisma.refreshTokens.findFirst({
+      where: { token, userId, expiresAt: { gt: new Date() } },
+    });
+  }
+
+  async deleteById(id: string) {
+    await this.prisma.refreshTokens.delete({ where: { id } });
+  }
+
+  /**
+   * Scheduled cleanup of expired refresh tokens
+   */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async clearExpiredRefreshTokens() {
-    await this.prismaService.refreshTokens.deleteMany({
-      where: {
-        expiresAt: {
-          lte: new Date(),
-        },
-      },
+    await this.prisma.refreshTokens.deleteMany({
+      where: { expiresAt: { lte: new Date() } },
     });
   }
 }

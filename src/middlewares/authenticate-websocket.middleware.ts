@@ -11,7 +11,11 @@ export const AuthenticateWebsocketMiddleware = (
 ): SocketMiddleware => {
   return async (socket: Socket, next) => {
     try {
-      const token = socket.handshake?.auth?.token;
+      const cookies = (socket.request as any).cookies as Record<string, string>;
+
+      const token = cookies['accessToken'];
+
+      if (!token) throw new Error('No access token');
 
       if (!token) {
         throw new Error('Authorization token is missing');

@@ -1,4 +1,3 @@
-import { HttpExceptionFilter } from '@interceptors/http-exception.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -7,8 +6,12 @@ import session from 'express-session';
 
 import { validatorOptions } from '@configs/validator-options';
 
+import { HttpExceptionFilter } from '@interceptors/http-exception.interceptor';
+
 import { LoggerService } from '@modules/api/core/logging/logger.service';
 import { AppModule } from '@modules/app/app.module';
+
+import { CookieIoAdapter } from './adapters/cookie-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -28,6 +31,7 @@ async function bootstrap() {
 
   // Middlewares
   app.use(cookieParser());
+  app.useWebSocketAdapter(new CookieIoAdapter(app));
   app.useGlobalPipes(new ValidationPipe(validatorOptions));
   app.useGlobalFilters(new HttpExceptionFilter(logger));
 

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   GoneException,
   HttpCode,
   HttpStatus,
@@ -14,11 +13,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
 import { Response as ExpressResponse } from 'express';
 
 import { Public } from 'src/decorators/Public';
-import { normalizePermissions } from 'src/utils/normalizePermissions';
 
 import { UsersService } from '../users/users.service';
 
@@ -42,11 +39,10 @@ export class AuthController {
     private refreshToeknService: RefreshTokenService,
   ) {}
 
-  @Throttle({ short: { limit: 2, ttl: 1000 }, long: { limit: 5, ttl: 60000 } })
   @Public()
-  @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Request() req,
     @Response({ passthrough: true }) res: ExpressResponse,
@@ -56,49 +52,29 @@ export class AuthController {
       req.user,
     );
 
-    res.cookie('refreshToken', refreshToken, cookieConstants);
-
-    res.cookie('accessToken', accessToken, {
-      ...cookieConstants,
-      httpOnly: false,
-    });
+    res.cookie('refreshToken', refreshToken, cookieConstants.refresh);
+    res.cookie('accessToken', accessToken, cookieConstants.access);
 
     return req.user;
   }
 
-  @Throttle({ short: { limit: 1, ttl: 1000 }, long: { limit: 2, ttl: 60000 } })
   @Public()
   @UseGuards(JwtRefreshAuthGuard)
-  @HttpCode(HttpStatus.OK)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   async refresh(
     @Request() req,
     @Response({ passthrough: true }) res: ExpressResponse,
   ) {
     const { accessToken, refreshToken } = await this.authService.refreshTokens(
       req.user,
+      req.cookies.refreshToken,
     );
 
-    res.cookie('refreshToken', refreshToken, cookieConstants);
-
-    res.cookie('accessToken', accessToken, {
-      ...cookieConstants,
-      httpOnly: false,
-    });
+    res.cookie('refreshToken', refreshToken, cookieConstants.refresh);
+    res.cookie('accessToken', accessToken, cookieConstants.access);
 
     return req.user;
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @Get('/me')
-  async me(@Request() req) {
-    const user = await this.usersService.findOne(req.user.sub, {
-      withPermissions: true,
-    });
-    const permissions = normalizePermissions(user);
-
-    return { ...req.user, permissions };
   }
 
   @ApiBearerAuth()
@@ -106,10 +82,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Response({ passthrough: true }) res: ExpressResponse) {
-    res.clearCookie('refreshToken', { path: '/' });
-    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: cookieConstants.refresh.path });
+    res.clearCookie('accessToken', { path: cookieConstants.access.path });
   }
-
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('/password/forgot')

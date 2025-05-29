@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { EmailService } from 'src/modules/shared/email/email.service';
@@ -6,6 +7,7 @@ import { EmailService } from 'src/modules/shared/email/email.service';
 import { User } from '../users/entity/user';
 import { UsersService } from '../users/users.service';
 
+import { jwtConstants } from './constants';
 import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 import { RefreshTokenService } from './refresh-token.service';
 
@@ -15,6 +17,7 @@ export class AuthService {
     private usersService: UsersService,
     private emailService: EmailService,
     private refreshTokenService: RefreshTokenService,
+    private jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -29,8 +32,17 @@ export class AuthService {
     return this.refreshTokenService.generateTokenPair(payload.sub, payload);
   }
 
-  async refreshTokens(payload: IAuthenticatedUser) {
-    return this.refreshTokenService.generateTokenPair(payload.sub, payload);
+  async refreshTokens(user: IAuthenticatedUser, oldToken: string) {
+    const refreshToken = await this.refreshTokenService.rotateRefreshToken(
+      user.sub,
+      oldToken,
+    );
+
+    const accessToken = this.jwtService.sign(user, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: jwtConstants.accessExpiresIn,
+    });
+    return { accessToken, refreshToken };
   }
 
   async forgotPassword(email: string): Promise<number> {

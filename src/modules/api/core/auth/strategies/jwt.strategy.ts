@@ -8,7 +8,12 @@ import { IAuthenticatedUser } from '../dto/authenticate-user.dto';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.accessToken;
+        },
+        ExtractJwt.fromAuthHeaderAsBearerToken(), // fallback for auth header
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_ACCESS_SECRET,
     });

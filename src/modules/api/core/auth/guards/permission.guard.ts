@@ -46,7 +46,7 @@ export class PermissionGuard implements CanActivate {
     if (!user) return false;
 
     const storedUser = await this.usersService.findOne(user.sub, {
-      withPermissions: true,
+      returnPermissions: true,
     });
 
     const userNormalizerPermissions = normalizePermissions(storedUser);

@@ -1,10 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
-import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
-
-import { RolesModule } from '../roles/roles.module';
+import { PrismaService } from '../../../shared/prisma/prisma.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -12,16 +10,33 @@ import { UsersService } from './users.service';
 
 jest.mock('bcrypt', () => ({
   hashSync: jest.fn().mockReturnValue('hashedPassword'),
+  hash: jest.fn().mockResolvedValue('hashedPassword'),
+  compareSync: jest.fn().mockReturnValue(true),
 }));
 
 describe('UsersService', () => {
   let service: UsersService;
-  let prismaService: PrismaService;
 
-  beforeAll(async () => {
+  const mockPrismaService = {
+    users: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  };
+
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, RolesModule],
-      providers: [UsersService],
+      providers: [
+        UsersService,
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+      ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
@@ -31,73 +46,398 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
-  beforeEach(() => {
-    prismaService = {
-      users: {
-        create: jest.fn().mockResolvedValue(null),
-      },
-    } as unknown as PrismaService;
-
-    service = new UsersService(prismaService);
-  });
-
   describe('create', () => {
-    it('should create a user when roleId is a positive number', async () => {
-      const user: CreateUserDto = {
+    it('should create a user with hashed password', async () => {
+      const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         name: 'Test User',
         password: 'password123',
         roleId: 1,
+        provider: Provider.LOCAL,
       };
 
-      await expect(service.create(user)).resolves.not.toThrow();
+      const expectedUser = {
+        ...createUserDto,
+        password: 'hashedPassword',
+      };
+
+      mockPrismaService.users.create.mockResolvedValue(expectedUser);
+
+      const result = await service.create(createUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.create).toHaveBeenCalledWith({
+        data: {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          password: 'hashedPassword',
+          provider: Provider.LOCAL,
+          providerId: undefined,
+          role: {
+            connect: {
+              id: createUserDto.roleId,
+            },
+          },
+        },
+      });
+      expect(bcrypt.compareSync(createUserDto.password, result.password)).toBe(
+        true,
+      );
     });
 
-    it('should hash the password before creating a user', async () => {
-      const user: CreateUserDto = {
+    it('should create a user without password for OAuth', async () => {
+      const createUserDto: CreateUserDto = {
+        email: 'test@example.com',
+        name: 'Test User',
+        roleId: 1,
+        provider: Provider.GOOGLE,
+        providerId: 'google-id',
+      };
+
+      const expectedUser = {
+        ...createUserDto,
+        password: null,
+      };
+
+      mockPrismaService.users.create.mockResolvedValue(expectedUser);
+
+      const result = await service.create(createUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.create).toHaveBeenCalledWith({
+        data: {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          password: null,
+          provider: createUserDto.provider,
+          providerId: createUserDto.providerId,
+          role: {
+            connect: {
+              id: createUserDto.roleId,
+            },
+          },
+        },
+      });
+    });
+
+    it('should include permissions when requested', async () => {
+      const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         name: 'Test User',
         password: 'password123',
         roleId: 1,
+        provider: Provider.LOCAL,
       };
 
-      await service.create(user);
+      const expectedUser = {
+        ...createUserDto,
+        password: 'hashedPassword',
+        role: {
+          permissionRole: [
+            {
+              permission: {
+                name: 'test',
+              },
+            },
+          ],
+        },
+      };
 
-      expect(bcrypt.hashSync).toHaveBeenCalledWith(user.password, 10);
+      mockPrismaService.users.create.mockResolvedValue(expectedUser);
+
+      const result = await service.create(createUserDto, {
+        returnPermissions: true,
+      });
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.create).toHaveBeenCalledWith({
+        data: {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          password: 'hashedPassword',
+          provider: Provider.LOCAL,
+          providerId: undefined,
+          role: {
+            connect: {
+              id: createUserDto.roleId,
+            },
+          },
+        },
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  });
+
+  describe('findByProvider', () => {
+    it('should find a user by provider and providerId', async () => {
+      const provider = Provider.GOOGLE;
+      const providerId = 'google-id';
+      const expectedUser = {
+        id: 1,
+        email: 'test@example.com',
+        provider,
+        providerId,
+      };
+
+      mockPrismaService.users.findFirst.mockResolvedValue(expectedUser);
+
+      const result = await service.findByProvider(provider, providerId);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findFirst).toHaveBeenCalledWith({
+        where: { provider, providerId },
+      });
+    });
+
+    it('should include permissions when requested', async () => {
+      const provider = Provider.GOOGLE;
+      const providerId = 'google-id';
+      const expectedUser = {
+        id: 1,
+        email: 'test@example.com',
+        provider,
+        providerId,
+        role: {
+          permissionRole: [
+            {
+              permission: {
+                name: 'test',
+              },
+            },
+          ],
+        },
+      };
+
+      mockPrismaService.users.findFirst.mockResolvedValue(expectedUser);
+
+      const result = await service.findByProvider(provider, providerId, {
+        returnPermissions: true,
+      });
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findFirst).toHaveBeenCalledWith({
+        where: { provider, providerId },
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      });
     });
   });
 
   describe('findAll', () => {
-    it('should return all users', async () => {
-      prismaService.users.findMany = jest.fn().mockResolvedValue([]);
+    it('should return an array of users', async () => {
+      const expectedUsers = [
+        { id: 1, email: 'test1@example.com' },
+        { id: 2, email: 'test2@example.com' },
+      ];
 
-      await expect(service.findAll()).resolves.toEqual([]);
+      mockPrismaService.users.findMany.mockResolvedValue(expectedUsers);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual(expectedUsers);
+      expect(mockPrismaService.users.findMany).toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
-    it('should return a user by id', async () => {
-      prismaService.users.findUnique = jest.fn().mockResolvedValue(null);
+    it('should find a user by id', async () => {
+      const id = '1';
+      const expectedUser = {
+        id,
+        email: 'test@example.com',
+      };
 
-      await expect(service.findOne('testId')).resolves.toEqual(null);
+      mockPrismaService.users.findUnique.mockResolvedValue(expectedUser);
+
+      const result = await service.findOne(id);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findUnique).toHaveBeenCalledWith({
+        where: { id },
+      });
+    });
+
+    it('should include permissions when requested', async () => {
+      const id = '1';
+      const expectedUser = {
+        id,
+        email: 'test@example.com',
+        role: {
+          permissionRole: [
+            {
+              permission: {
+                name: 'test',
+              },
+            },
+          ],
+        },
+      };
+
+      mockPrismaService.users.findUnique.mockResolvedValue(expectedUser);
+
+      const result = await service.findOne(id, { returnPermissions: true });
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findUnique).toHaveBeenCalledWith({
+        where: { id },
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('should find a user by email', async () => {
+      const email = 'test@example.com';
+      const expectedUser = {
+        id: 1,
+        email,
+      };
+
+      mockPrismaService.users.findFirst.mockResolvedValue(expectedUser);
+
+      const result = await service.findByEmail(email);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findFirst).toHaveBeenCalledWith({
+        where: { email },
+      });
+    });
+
+    it('should include permissions when requested', async () => {
+      const email = 'test@example.com';
+      const expectedUser = {
+        id: 1,
+        email,
+        role: {
+          permissionRole: [
+            {
+              permission: {
+                name: 'test',
+              },
+            },
+          ],
+        },
+      };
+
+      mockPrismaService.users.findFirst.mockResolvedValue(expectedUser);
+
+      const result = await service.findByEmail(email, {
+        returnPermissions: true,
+      });
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.findFirst).toHaveBeenCalledWith({
+        where: { email },
+        include: {
+          role: {
+            include: {
+              permissionRole: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      });
     });
   });
 
   describe('update', () => {
-    it('should update a user by id', async () => {
-      prismaService.users.update = jest.fn().mockResolvedValue(null);
+    it('should update a user', async () => {
+      const id = '1';
+      const updateUserDto: UpdateUserDto = {
+        name: 'Updated Name',
+      };
+      const expectedUser = {
+        id,
+        ...updateUserDto,
+      };
 
-      await expect(
-        service.update('testId', {} as UpdateUserDto),
-      ).resolves.not.toThrow();
+      mockPrismaService.users.update.mockResolvedValue(expectedUser);
+
+      const result = await service.update(id, updateUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.update).toHaveBeenCalledWith({
+        where: { id },
+        data: updateUserDto,
+      });
+    });
+
+    it('should hash password when updating', async () => {
+      const id = '1';
+      const updateUserDto: UpdateUserDto = {
+        password: 'newpassword',
+      };
+      const expectedUser = {
+        id,
+        password: 'hashedPassword',
+      };
+
+      mockPrismaService.users.update.mockResolvedValue(expectedUser);
+
+      const result = await service.update(id, updateUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.update).toHaveBeenCalledWith({
+        where: { id },
+        data: {
+          ...updateUserDto,
+          password: 'hashedPassword',
+        },
+      });
+      expect(bcrypt.compareSync(updateUserDto.password, result.password)).toBe(
+        true,
+      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a user by id', async () => {
-      prismaService.users.delete = jest.fn().mockResolvedValue(null);
+    it('should remove a user', async () => {
+      const id = '1';
+      const expectedUser = {
+        id,
+        email: 'test@example.com',
+      };
 
-      await expect(service.remove('testId')).resolves.not.toThrow();
+      mockPrismaService.users.delete.mockResolvedValue(expectedUser);
+
+      const result = await service.remove(id);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockPrismaService.users.delete).toHaveBeenCalledWith({
+        where: { id },
+      });
     });
   });
 });

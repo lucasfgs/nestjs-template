@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 
 import { EmailService } from 'src/modules/shared/email/email.service';
 
-import { User } from '../users/entity/user';
+import { User } from '../users/entity/user.entity';
 import { UsersService } from '../users/users.service';
 
 import { jwtConstants } from './constants';
@@ -22,7 +22,9 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findByEmail(email, true);
+    const user = await this.usersService.findByEmail(email, {
+      returnPermissions: true,
+    });
     if (user && bcrypt.compareSync(password, user.password)) {
       return user;
     }
@@ -44,7 +46,7 @@ export class AuthService {
   }): Promise<User> {
     // Find or create user
     let user = await this.usersService.findByProvider(provider, profileId, {
-      withPermissions: true,
+      returnPermissions: true,
     });
 
     if (!user) {
@@ -57,7 +59,7 @@ export class AuthService {
           roleId,
         },
         {
-          withPermissions: true,
+          returnPermissions: true,
         },
       );
     }

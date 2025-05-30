@@ -41,7 +41,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     const user = await this.usersService.findOne(payload.sub, {
-      withPermissions: true,
+      returnPermissions: true,
     });
     if (!user) throw new UnauthorizedException();
 

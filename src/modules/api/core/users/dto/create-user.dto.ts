@@ -9,7 +9,7 @@ import {
   IsIn,
 } from 'class-validator';
 
-import { User } from '../entity/user';
+import { User } from '../entity/user.entity';
 
 export class CreateUserDto implements Partial<User> {
   @IsString()

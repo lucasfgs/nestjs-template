@@ -102,7 +102,10 @@ export class RolesService {
     // Emit a websocket event to clients with the same role
     this.eventsGateway.io.sockets.sockets.forEach(async (client) => {
       // Check if the client's role matches
-      if (client.user.role.toLowerCase() === updatedRole.name.toLowerCase()) {
+      if (
+        (client as any).user.role.toLowerCase() ===
+        updatedRole.name.toLowerCase()
+      ) {
         // Get the updated role with permissions from database
         const permissions = updatedRole.permissionRole?.map(
           (permissionRole) => ({

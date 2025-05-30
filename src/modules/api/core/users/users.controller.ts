@@ -12,7 +12,6 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AllowPermissions } from 'src/decorators/AllowPermissions';
-import { SseService } from 'src/modules/shared/sse/sse.service';
 
 import { EPermission } from '../permissions/entities/permission.entity';
 import { RolesService } from '../roles/roles.service';
@@ -29,7 +28,6 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly rolesService: RolesService,
-    private readonly sseService: SseService,
   ) {}
 
   @Post()
@@ -62,14 +60,12 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id, {
-      withPermissions: true,
+      returnPermissions: true,
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    this.sseService.emitEvent('user-fetched', user);
 
     return user;
   }

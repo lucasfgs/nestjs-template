@@ -12,5 +12,23 @@
                 "file": "authentication/google-oauth.md"
             }
         ]
+    },
+    {
+        "title": "Tests",
+        "file": "tests/index.md",
+        "children": [
+            {
+                "title": "Test Structure",
+                "file": "tests/test-structure.md"
+            },
+            {
+                "title": "Test Coverage",
+                "file": "tests/test-coverage.md"
+            },
+            {
+                "title": "Running Tests",
+                "file": "tests/running-tests.md"
+            }
+        ]
     }
 ]

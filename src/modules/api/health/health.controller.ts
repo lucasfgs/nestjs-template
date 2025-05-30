@@ -8,6 +8,8 @@ import {
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
 
+import { Public } from '@decorators/Public';
+
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
@@ -18,6 +20,7 @@ export class HealthController {
     private disk: DiskHealthIndicator,
   ) {}
 
+  @Public()
   @Get()
   @HealthCheck()
   check() {

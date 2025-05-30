@@ -7,13 +7,24 @@ import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+const includePermissions = {
+  role: {
+    include: {
+      permissionRole: {
+        include: {
+          permission: true,
+        },
+      },
+    },
+  },
+};
+
 @Injectable()
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  create(user: CreateUserDto, options: { withPermissions: boolean } = null) {
+  create(user: CreateUserDto, options: { returnPermissions?: boolean } = {}) {
     const { email, name, password, roleId, provider, providerId } = user;
-
     const hashedPassword = password ? bcrypt.hashSync(password, 10) : null;
 
     return this.prismaService.users.create({
@@ -29,42 +40,18 @@ export class UsersService {
           },
         },
       },
-      ...(options?.withPermissions && {
-        include: {
-          role: {
-            include: {
-              permissionRole: {
-                include: {
-                  permission: true,
-                },
-              },
-            },
-          },
-        },
-      }),
+      ...(options.returnPermissions && { include: includePermissions }),
     });
   }
 
   findByProvider(
     provider: Provider,
     providerId: string,
-    options: { withPermissions: boolean } = null,
+    options: { returnPermissions?: boolean } = {},
   ) {
     return this.prismaService.users.findFirst({
       where: { provider, providerId },
-      ...(options?.withPermissions && {
-        include: {
-          role: {
-            include: {
-              permissionRole: {
-                include: {
-                  permission: true,
-                },
-              },
-            },
-          },
-        },
-      }),
+      ...(options.returnPermissions && { include: includePermissions }),
     });
   }
 
@@ -72,41 +59,17 @@ export class UsersService {
     return this.prismaService.users.findMany();
   }
 
-  findOne(id: string, options: { withPermissions: boolean } = null) {
+  findOne(id: string, options: { returnPermissions?: boolean } = {}) {
     return this.prismaService.users.findUnique({
       where: { id },
-      ...(options?.withPermissions && {
-        include: {
-          role: {
-            include: {
-              permissionRole: {
-                include: {
-                  permission: true,
-                },
-              },
-            },
-          },
-        },
-      }),
+      ...(options.returnPermissions && { include: includePermissions }),
     });
   }
 
-  findByEmail(email: string, withPermissions: boolean = false) {
+  findByEmail(email: string, options: { returnPermissions?: boolean } = {}) {
     return this.prismaService.users.findFirst({
       where: { email },
-      ...(withPermissions && {
-        include: {
-          role: {
-            include: {
-              permissionRole: {
-                include: {
-                  permission: true,
-                },
-              },
-            },
-          },
-        },
-      }),
+      ...(options.returnPermissions && { include: includePermissions }),
     });
   }
 
@@ -114,7 +77,6 @@ export class UsersService {
     if (updateUserDto.password) {
       updateUserDto.password = bcrypt.hashSync(updateUserDto.password, 10);
     }
-
     return this.prismaService.users.update({
       where: { id },
       data: updateUserDto,

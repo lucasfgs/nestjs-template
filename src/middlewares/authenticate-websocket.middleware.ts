@@ -4,12 +4,19 @@ import { Socket } from 'socket.io';
 import { IAuthenticatedUser } from '@modules/api/core/auth/dto/authenticate-user.dto';
 import { JwtStrategy } from '@modules/api/core/auth/strategies/jwt.strategy';
 
-type SocketMiddleware = (socket: Socket, next: (err?: Error) => void) => void;
+interface IAuthenticatedSocket extends Socket {
+  user?: IAuthenticatedUser;
+}
+
+type SocketMiddleware = (
+  socket: IAuthenticatedSocket,
+  next: (err?: Error) => void,
+) => void;
 
 export const AuthenticateWebsocketMiddleware = (
   jwtService: JwtService,
 ): SocketMiddleware => {
-  return async (socket: Socket, next) => {
+  return async (socket: IAuthenticatedSocket, next) => {
     try {
       const cookies = (socket.request as any).cookies as Record<string, string>;
 
@@ -17,17 +24,13 @@ export const AuthenticateWebsocketMiddleware = (
 
       if (!token) throw new Error('No access token');
 
-      if (!token) {
-        throw new Error('Authorization token is missing');
-      }
-
       let payload: IAuthenticatedUser | null = null;
 
       try {
         payload = await jwtService.verifyAsync<IAuthenticatedUser>(token, {
           secret: process.env.JWT_ACCESS_SECRET,
         });
-      } catch (error) {
+      } catch {
         throw new Error('Authorization token is invalid');
       }
 
@@ -38,11 +41,9 @@ export const AuthenticateWebsocketMiddleware = (
         throw new Error('User does not exist');
       }
 
-      socket = Object.assign(socket, {
-        user,
-      });
+      socket.user = user;
       next();
-    } catch (error) {
+    } catch {
       next(new Error('Unauthorized'));
     }
   };

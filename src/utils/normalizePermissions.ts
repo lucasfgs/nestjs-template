@@ -1,6 +1,6 @@
 import { TPermission } from '@modules/api/core/auth/dto/authenticate-user.dto';
 
-import { User } from 'src/modules/api/core/users/entity/user';
+import { User } from '@modules/api/core/users/entity/user.entity';
 
 export function normalizePermissions(user: User): TPermission[] {
   return user.role?.permissionRole?.map((permissionRole) => ({

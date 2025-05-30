@@ -1,0 +1,40 @@
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
+  transform: {
+    '^.+\\.(t|j)s$': 'ts-jest',
+  },
+  collectCoverageFrom: ['**/*.(t|j)s'],
+  coverageDirectory: '../coverage',
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/$1',
+    '^@modules/(.*)$': '<rootDir>/modules/$1',
+    '^@decorators/(.*)$': '<rootDir>/decorators/$1',
+    '^@utils/(.*)$': '<rootDir>/utils/$1',
+  },
+  coverageThreshold: {
+    global: {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100,
+    },
+  },
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
+  coveragePathIgnorePatterns: [
+    '.*\\.dto\\.ts$',
+    '.*\\.config\\.ts$',
+    '.*\\.types\\.ts$',
+    '.*\\.enum\\.ts$',
+    '.*\\.module\\.ts$',
+    '.*\\.entity\\.ts$',
+    '.*constants\\.ts$',
+    'main.ts',
+    '<rootDir>/configs/',
+    '<rootDir>/adapters/',
+    '<rootDir>/interceptors/',
+    '<rootDir>/decorators/',
+  ],
+};

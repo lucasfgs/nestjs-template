@@ -57,11 +57,13 @@ export class StripeWebhooksService {
     const subscriptionId = event.data.object.subscription;
 
     // Get the subscription from the database
-    const storedSubscription = this.prismaService.subscriptions.findFirst({
-      where: {
-        stripeSubscriptionId: String(subscriptionId),
+    const storedSubscription = await this.prismaService.subscriptions.findFirst(
+      {
+        where: {
+          stripeSubscriptionId: String(subscriptionId),
+        },
       },
-    });
+    );
 
     if (!storedSubscription) {
       throw new NotFoundException('Subscription not found');
@@ -75,7 +77,7 @@ export class StripeWebhooksService {
     // Update the subscription status
     await this.prismaService.subscriptions.update({
       where: {
-        id: subscription.id,
+        id: storedSubscription.id,
       },
       data: {
         status: subscription.status,
@@ -128,10 +130,21 @@ export class StripeWebhooksService {
       throw new NotFoundException('Invoice not found');
     }
 
-    // Update the invoice status
+    // Get the subscription from the database
+    const subscription = await this.prismaService.subscriptions.findFirst({
+      where: {
+        stripeSubscriptionId: String(invoice.subscription),
+      },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    // Update the subscription status
     await this.prismaService.subscriptions.update({
       where: {
-        id: invoice.id,
+        id: subscription.id,
       },
       data: {
         status: 'refunded',

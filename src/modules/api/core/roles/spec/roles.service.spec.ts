@@ -17,6 +17,7 @@ describe('RolesService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
     users: {
       findFirst: jest.fn(),
@@ -100,16 +101,21 @@ describe('RolesService', () => {
   describe('findAll', () => {
     it('should return an array of roles', async () => {
       const expectedRoles = [
-        { id: 1, name: 'role1' },
-        { id: 2, name: 'role2' },
+        { id: 1, name: 'admin' },
+        { id: 2, name: 'user' },
       ];
 
       mockPrismaService.roles.findMany.mockResolvedValue(expectedRoles);
+      mockPrismaService.roles.count.mockResolvedValue(2);
 
       const result = await service.findAll();
 
-      expect(result).toEqual(expectedRoles);
+      expect(result).toEqual({
+        items: expectedRoles,
+        total: 2,
+      });
       expect(mockPrismaService.roles.findMany).toHaveBeenCalled();
+      expect(mockPrismaService.roles.count).toHaveBeenCalled();
     });
   });
 

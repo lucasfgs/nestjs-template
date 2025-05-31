@@ -1,3 +1,5 @@
+import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
+import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -5,14 +7,12 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
 
-import { validatorOptions } from '@configs/validator-options';
-
-import { HttpExceptionFilter } from '@interceptors/http-exception.interceptor';
+import { validatorOptions } from '@configs/validator-options.config';
 
 import { LoggerService } from '@modules/api/core/logging/logger.service';
 import { AppModule } from '@modules/app/app.module';
 
-import { CookieIoAdapter } from './adapters/cookie-io.adapter';
+import { CookieIoAdapter } from './common/adapters/cookie-io.adapter';
 
 async function bootstrap() {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -37,6 +37,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(new CookieIoAdapter(app));
   app.useGlobalPipes(new ValidationPipe(validatorOptions));
   app.useGlobalFilters(new HttpExceptionFilter(logger));
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger
   if (!isProduction) {

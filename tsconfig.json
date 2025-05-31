@@ -19,11 +19,13 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@modules/*": ["src/modules/*"],
-      "@middlewares/*": ["src/middlewares/*"],
-      "@decorators/*": ["src/decorators/*"],
       "@configs/*": ["src/configs/*"],
       "@utils/*": ["src/utils/*"],
-      "@interceptors/*": ["src/interceptors/*"]
+      "@common/*": ["src/common/*"],
+      "@decorators/*": ["src/common/decorators/*"],
+      "@middlewares/*": ["src/common/middlewares/*"],
+      "@interceptors/*": ["src/common/interceptors/*"],
+      "@filters/*": ["src/common/filters/*"]
     }
   }
 }

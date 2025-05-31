@@ -1,7 +1,7 @@
 const isProduction = process.env.NODE_ENV === 'production';
 
 export const jwtConstants = {
-  accessExpiresIn: '15s',
+  accessExpiresIn: '5m',
   refreshExpiresIn: '30d',
 };
 

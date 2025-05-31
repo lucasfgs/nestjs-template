@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 
-import { LOG_COLORS, LOG_DIR, LOG_LEVELS } from './constants';
+import { LOG_COLORS, LOG_DIR, LOG_LEVELS } from '@configs/logging.config';
 
 @Injectable()
 export class LoggerService implements RawLoggerService {

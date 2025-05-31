@@ -24,6 +24,7 @@ describe('UsersService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
   };
 
@@ -249,11 +250,85 @@ describe('UsersService', () => {
       ];
 
       mockPrismaService.users.findMany.mockResolvedValue(expectedUsers);
+      mockPrismaService.users.count.mockResolvedValue(2);
 
       const result = await service.findAll();
 
-      expect(result).toEqual(expectedUsers);
-      expect(mockPrismaService.users.findMany).toHaveBeenCalled();
+      expect(result).toEqual({ items: expectedUsers, total: 2 });
+      expect(mockPrismaService.users.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        include: { role: true },
+      });
+    });
+
+    it('should apply sorting when sortBy and sortOrder are provided', async () => {
+      const expectedUsers = [
+        { id: 1, email: 'test1@example.com' },
+        { id: 2, email: 'test2@example.com' },
+      ];
+
+      mockPrismaService.users.findMany.mockResolvedValue(expectedUsers);
+      mockPrismaService.users.count.mockResolvedValue(2);
+
+      const result = await service.findAll({
+        sortBy: 'email',
+        sortOrder: 'asc',
+      });
+
+      expect(result).toEqual({ items: expectedUsers, total: 2 });
+      expect(mockPrismaService.users.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        include: { role: true },
+        orderBy: {
+          email: 'asc',
+        },
+      });
+    });
+
+    it('should not apply sorting when only sortBy is provided', async () => {
+      const expectedUsers = [
+        { id: 1, email: 'test1@example.com' },
+        { id: 2, email: 'test2@example.com' },
+      ];
+
+      mockPrismaService.users.findMany.mockResolvedValue(expectedUsers);
+      mockPrismaService.users.count.mockResolvedValue(2);
+
+      const result = await service.findAll({
+        sortBy: 'email',
+      });
+
+      expect(result).toEqual({ items: expectedUsers, total: 2 });
+      expect(mockPrismaService.users.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        include: { role: true },
+        orderBy: undefined,
+      });
+    });
+
+    it('should not apply sorting when only sortOrder is provided', async () => {
+      const expectedUsers = [
+        { id: 1, email: 'test1@example.com' },
+        { id: 2, email: 'test2@example.com' },
+      ];
+
+      mockPrismaService.users.findMany.mockResolvedValue(expectedUsers);
+      mockPrismaService.users.count.mockResolvedValue(2);
+
+      const result = await service.findAll({
+        sortOrder: 'asc',
+      });
+
+      expect(result).toEqual({ items: expectedUsers, total: 2 });
+      expect(mockPrismaService.users.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        include: { role: true },
+        orderBy: undefined,
+      });
     });
   });
 

@@ -6,10 +6,11 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 
+import { cookieConstants } from '@configs/authentication.config';
+
 import { UsersService } from '../../users/users.service';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { cookieConstants } from '../constants';
 import { AuthenticateUserDto } from '../dto/authenticate-user.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
@@ -23,29 +24,40 @@ interface ISession {
 
 describe('AuthController', () => {
   let controller: AuthController;
-
-  const mockAuthService = {
-    login: jest.fn(),
-    refreshTokens: jest.fn(),
-    forgotPassword: jest.fn(),
-  };
-
-  const mockUsersService = {
-    findByEmail: jest.fn(),
-    update: jest.fn(),
-  };
-
-  const mockRefreshTokenService = {
-    generateTokenPair: jest.fn(),
-  };
-
-  const mockResponse = {
-    cookie: jest.fn(),
-    clearCookie: jest.fn(),
-    redirect: jest.fn(),
-  } as unknown as Response;
+  let mockAuthService: jest.Mocked<AuthService>;
+  let mockRefreshTokenService: jest.Mocked<RefreshTokenService>;
+  let mockResponse: jest.Mocked<Response>;
+  let mockUsersService: jest.Mocked<UsersService>;
 
   beforeEach(async () => {
+    mockAuthService = {
+      login: jest.fn(),
+      refreshTokens: jest.fn(),
+      forgotPassword: jest.fn(),
+    } as any;
+
+    mockRefreshTokenService = {
+      generateTokenPair: jest.fn(),
+    } as any;
+
+    mockResponse = {
+      cookie: jest.fn(),
+      clearCookie: jest.fn(),
+      redirect: jest.fn(),
+    } as any;
+
+    mockUsersService = {
+      findByEmail: jest
+        .fn()
+        .mockResolvedValue({ id: 1, email: 'test@example.com' }),
+      update: jest.fn(),
+      create: jest.fn(),
+      findByProvider: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      remove: jest.fn(),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
@@ -65,7 +77,6 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -88,11 +99,7 @@ describe('AuthController', () => {
       mockAuthService.login.mockResolvedValue(mockTokens);
 
       const req = { user: mockUser };
-      const result = await controller.login(
-        req,
-        mockResponse,
-        {} as AuthenticateUserDto,
-      );
+      await controller.login(req, mockResponse, {} as AuthenticateUserDto);
 
       expect(mockAuthService.login).toHaveBeenCalledWith(mockUser);
       expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -105,7 +112,6 @@ describe('AuthController', () => {
         mockTokens.accessToken,
         cookieConstants.access,
       );
-      expect(result).toEqual(mockUser);
     });
   });
 
@@ -211,7 +217,7 @@ describe('AuthController', () => {
 
   describe('forgotPassword', () => {
     it('should store code in session and return nothing', async () => {
-      const mockCode = '123456';
+      const mockCode = 123456;
       const mockEmail = 'test@example.com';
       const mockSession: ISession = {};
 
@@ -350,15 +356,17 @@ describe('AuthController', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should update password and clear session', async () => {
+    it('should reset password and clear session', async () => {
       const mockSession: ISession = {
         forgotPasswordCode: '123456',
         forgotPasswordEmail: 'test@example.com',
       };
-      const mockUser = { id: 1, email: 'test@example.com' };
 
-      mockUsersService.findByEmail.mockResolvedValue(mockUser);
-      mockUsersService.update.mockResolvedValue(mockUser);
+      mockAuthService.forgotPassword.mockResolvedValue(123456);
+      mockAuthService.refreshTokens.mockResolvedValue({
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
+      });
 
       await controller.resetPassword(
         {
@@ -369,10 +377,10 @@ describe('AuthController', () => {
         mockSession,
       );
 
-      expect(mockUsersService.findByEmail).toHaveBeenCalledWith(
+      expect(controller['usersService'].findByEmail).toHaveBeenCalledWith(
         'test@example.com',
       );
-      expect(mockUsersService.update).toHaveBeenCalledWith(1, {
+      expect(controller['usersService'].update).toHaveBeenCalledWith(1, {
         password: 'new-password',
       });
       expect(mockSession.forgotPasswordEmail).toBeNull();

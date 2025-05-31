@@ -1,3 +1,4 @@
+import { Public } from '@common/decorators/Public';
 import {
   Controller,
   Headers,
@@ -9,8 +10,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-
-import { Public } from 'src/decorators/Public';
 
 import { UsersService } from '../../core/users/users.service';
 

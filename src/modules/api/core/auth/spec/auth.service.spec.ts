@@ -5,6 +5,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+import { jwtConstants } from '@configs/authentication.config';
+
 import { EmailService } from 'src/modules/shared/email/email.service';
 import { PrismaModule } from 'src/modules/shared/prisma/prisma.module';
 
@@ -12,7 +14,6 @@ import { UsersModule } from '../../users/users.module';
 import { UsersService } from '../../users/users.service';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { jwtConstants } from '../constants';
 import { IAuthenticatedUser, TPermission } from '../dto/authenticate-user.dto';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { PermissionGuard } from '../guards/permission.guard';

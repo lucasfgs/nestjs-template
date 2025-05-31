@@ -1,3 +1,5 @@
+import { AllowPermissions } from '@common/decorators/AllowPermissions';
+import { PaginationInterceptor } from '@common/interceptors/pagination.interceptor';
 import {
   Controller,
   Get,
@@ -8,15 +10,16 @@ import {
   ConflictException,
   Patch,
   Delete,
+  Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-
-import { AllowPermissions } from 'src/decorators/AllowPermissions';
 
 import { EPermission } from '../permissions/entities/permission.entity';
 import { RolesService } from '../roles/roles.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -53,8 +56,16 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @UseInterceptors(PaginationInterceptor)
+  findAll(@Query() query: GetAllUsersDto) {
+    return this.usersService.findAll({
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+      },
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+    });
   }
 
   @Get(':id')

@@ -1,3 +1,4 @@
+import { Public } from '@common/decorators/Public';
 import {
   Body,
   Controller,
@@ -18,12 +19,11 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 
-import { Public } from 'src/decorators/Public';
+import { cookieConstants } from '@configs/authentication.config';
 
 import { UsersService } from '../users/users.service';
 
 import { AuthService } from './auth.service';
-import { cookieConstants } from './constants';
 import {
   AuthenticateUserDto,
   IAuthenticatedUser,
@@ -49,7 +49,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async login(
     @Request() req,
     @Response({ passthrough: true }) res: ExpressResponse,
@@ -61,8 +61,6 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, cookieConstants.refresh);
     res.cookie('accessToken', accessToken, cookieConstants.access);
-
-    return req.user;
   }
 
   @Public()

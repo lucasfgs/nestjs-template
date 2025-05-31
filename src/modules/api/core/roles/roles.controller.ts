@@ -1,3 +1,6 @@
+import { AllowPermissions } from '@common/decorators/AllowPermissions';
+import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
+import { PaginationInterceptor } from '@common/interceptors/pagination.interceptor';
 import {
   Controller,
   Get,
@@ -8,10 +11,10 @@ import {
   Delete,
   ConflictException,
   NotFoundException,
+  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-
-import { AllowPermissions } from '@decorators/AllowPermissions';
 
 import { EPermission } from '../permissions/entities/permission.entity';
 
@@ -26,15 +29,6 @@ import { RolesService } from './roles.service';
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
-  /**
-   * Creates a new role in the database.
-   *
-   * @param createRoleDto - The data to create the new role with.
-   *
-   * @throws ConflictException - If a role with the same name as the provided data already exists.
-   *
-   * @returns The newly created role.
-   */
   @Post()
   async create(@Body() createRoleDto: CreateRoleDto) {
     // Check if role exists
@@ -49,25 +43,14 @@ export class RolesController {
     return this.rolesService.create(createRoleDto);
   }
 
-  /**
-   * Retrieves all roles from the database.
-   *
-   * @returns An array of all roles.
-   */
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  @UseInterceptors(PaginationInterceptor)
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.rolesService.findAll({
+      pagination: paginationDto,
+    });
   }
 
-  /**
-   * Retrieves a role by its ID.
-   *
-   * @param id - The unique identifier of the role to retrieve.
-   *
-   * @throws NotFoundException - If a role with the given ID does not exist.
-   *
-   * @returns The role with the specified ID.
-   */
   @Get(':id')
   async findOne(@Param('id') id: string) {
     if (!id) {
@@ -97,16 +80,6 @@ export class RolesController {
     return roleWithPermissions;
   }
 
-  /**
-   * Updates a role by its ID.
-   *
-   * @param id - The unique identifier of the role to update.
-   * @param updateRoleDto - The data to update the role with.
-   *
-   * @throws NotFoundException - If the role does not exist
-   * @throws ConflictException - If a role with the same name as the updated role already exists.
-   * @returns The updated role.
-   */
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     // Check if the role exists
@@ -132,13 +105,6 @@ export class RolesController {
     return this.rolesService.update(+id, updateRoleDto);
   }
 
-  /**
-   * Deletes a role by its ID.
-   *
-   * @param id - The unique identifier of the role to delete.
-   * @throws NotFoundException - If a role with the given ID does not exist.
-   * @returns The deleted role.
-   */
   @Delete(':id')
   async remove(@Param('id') id: string) {
     // Check if role exists

@@ -11,8 +11,13 @@ module.exports = {
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/$1',
     '^@modules/(.*)$': '<rootDir>/modules/$1',
-    '^@decorators/(.*)$': '<rootDir>/decorators/$1',
+    '^@configs/(.*)$': '<rootDir>/configs/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
+    '^@common/(.*)$': '<rootDir>/common/$1',
+    '^@decorators/(.*)$': '<rootDir>/common/decorators/$1',
+    '^@middlewares/(.*)$': '<rootDir>/common/middlewares/$1',
+    '^@interceptors/(.*)$': '<rootDir>/common/interceptors/$1',
+    '^@filters/(.*)$': '<rootDir>/common/filters/$1',
   },
   coverageThreshold: {
     global: {
@@ -30,11 +35,13 @@ module.exports = {
     '.*\\.enum\\.ts$',
     '.*\\.module\\.ts$',
     '.*\\.entity\\.ts$',
+    '.*\\.interface\\.ts$',
     '.*constants\\.ts$',
     'main.ts',
     '<rootDir>/configs/',
-    '<rootDir>/adapters/',
-    '<rootDir>/interceptors/',
-    '<rootDir>/decorators/',
+    '<rootDir>/common/adapters/',
+    '<rootDir>/common/interceptors/',
+    '<rootDir>/common/filters/',
+    '<rootDir>/common/decorators/',
   ],
 };

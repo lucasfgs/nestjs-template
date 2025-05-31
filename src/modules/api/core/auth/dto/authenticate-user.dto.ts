@@ -5,14 +5,14 @@ export class AuthenticateUserDto {
   @IsNotEmpty()
   @IsEmail()
   @ApiProperty({
-    example: 'test@mail.com',
+    example: 'admin@example.com',
     description: 'The email of the user',
   })
   email: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    example: 'R4ND0MP4$W0RD!',
+    example: 'admin123',
     description: 'The password of the user',
   })
   password: string;

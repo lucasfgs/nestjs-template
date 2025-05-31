@@ -1,3 +1,4 @@
+import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 
 import { EventsGateway } from 'src/modules/shared/events/events.gateway';
@@ -5,6 +6,10 @@ import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+
+interface IFindAllOptions {
+  pagination?: PaginationDto;
+}
 
 @Injectable()
 export class RolesService {
@@ -31,8 +36,20 @@ export class RolesService {
     });
   }
 
-  findAll() {
-    return this.prismaService.roles.findMany();
+  async findAll(options: IFindAllOptions = {}) {
+    const { pagination } = options;
+    const { page = 1, limit = 10 } = pagination || {};
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      this.prismaService.roles.findMany({
+        skip,
+        take: limit,
+      }),
+      this.prismaService.roles.count(),
+    ]);
+
+    return { items, total };
   }
 
   findByName(name: string) {

@@ -3,12 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+import { jwtConstants } from '@configs/authentication.config';
+
 import { EmailService } from 'src/modules/shared/email/email.service';
 
 import { User } from '../users/entity/user.entity';
 import { UsersService } from '../users/users.service';
 
-import { jwtConstants } from './constants';
 import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 import { RefreshTokenService } from './refresh-token.service';
 

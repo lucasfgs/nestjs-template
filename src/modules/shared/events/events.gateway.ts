@@ -1,3 +1,4 @@
+import { AuthenticateWebsocketMiddleware } from '@common/middlewares/authenticate-websocket.middleware';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -9,8 +10,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-
-import { AuthenticateWebsocketMiddleware } from 'src/middlewares/authenticate-websocket.middleware';
 
 @WebSocketGateway()
 export class EventsGateway

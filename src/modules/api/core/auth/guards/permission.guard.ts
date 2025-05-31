@@ -1,10 +1,9 @@
+import { ALLOW_PERMISSIONS } from '@common/decorators/AllowPermissions';
+import { IS_PUBLIC_KEY } from '@common/decorators/Public';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Method } from 'axios';
 
-import { IS_PUBLIC_KEY } from '@decorators/Public';
-
-import { ALLOW_PERMISSIONS } from 'src/decorators/AllowPermissions';
 import { normalizePermissions } from 'src/utils/normalizePermissions';
 
 import { UsersService } from '../../users/users.service';

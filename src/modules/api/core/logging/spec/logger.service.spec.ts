@@ -1,7 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { LOG_LEVELS } from '../constants';
+import { LOG_LEVELS } from '@configs/logging.config';
+
 import { LoggerService } from '../logger.service';
 
 describe('LoggerService', () => {

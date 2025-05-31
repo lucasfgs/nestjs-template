@@ -148,10 +148,10 @@ describe('UsersController', () => {
           id: '1',
           name: 'Test User',
           email: 'test@example.com',
-          password: 'password',
+          password: 'hashedPassword',
           provider: Provider.LOCAL,
           roleId: 1,
-          providerId: 'local',
+          providerId: '123',
           created_at: new Date(),
           updated_at: new Date(),
           role: {
@@ -163,12 +163,20 @@ describe('UsersController', () => {
         },
       ];
 
-      mockUsersService.findAll.mockResolvedValue(mockUsers);
+      mockUsersService.findAll.mockResolvedValue({
+        items: mockUsers,
+        total: 1,
+      });
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(mockUsers);
-      expect(mockUsersService.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        items: mockUsers,
+        total: 1,
+      });
+      expect(mockUsersService.findAll).toHaveBeenCalledWith({
+        pagination: { page: 1, limit: 10 },
+      });
     });
   });
 

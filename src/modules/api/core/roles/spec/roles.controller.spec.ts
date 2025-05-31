@@ -59,12 +59,26 @@ describe('RolesController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all roles', async () => {
-      const expected = [{ id: 1, name: 'role1' }];
-      mockRolesService.findAll.mockResolvedValue(expected);
-      const result = await controller.findAll();
-      expect(result).toEqual(expected);
-      expect(mockRolesService.findAll).toHaveBeenCalled();
+    it('should return an array of roles', async () => {
+      const expectedRoles = [
+        { id: 1, name: 'admin' },
+        { id: 2, name: 'user' },
+      ];
+
+      mockRolesService.findAll.mockResolvedValue({
+        items: expectedRoles,
+        total: 2,
+      });
+
+      const result = await controller.findAll({ page: 1, limit: 10 });
+
+      expect(result).toEqual({
+        items: expectedRoles,
+        total: 2,
+      });
+      expect(mockRolesService.findAll).toHaveBeenCalledWith({
+        pagination: { page: 1, limit: 10 },
+      });
     });
   });
 

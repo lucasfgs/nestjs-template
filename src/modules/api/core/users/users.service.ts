@@ -1,3 +1,4 @@
+import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -18,6 +19,17 @@ const includePermissions = {
     },
   },
 };
+
+const includeRole = {
+  role: true,
+};
+
+interface IFindAllOptions {
+  pagination?: PaginationDto;
+  returnPermissions?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
 
 @Injectable()
 export class UsersService {
@@ -55,8 +67,32 @@ export class UsersService {
     });
   }
 
-  findAll() {
-    return this.prismaService.users.findMany();
+  async findAll(options: IFindAllOptions = {}) {
+    const {
+      pagination,
+      returnPermissions = false,
+      sortBy,
+      sortOrder,
+    } = options;
+    const { page = 1, limit = 10 } = pagination || {};
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      this.prismaService.users.findMany({
+        skip,
+        take: limit,
+        include: returnPermissions ? includePermissions : includeRole,
+        orderBy:
+          sortBy && sortOrder
+            ? {
+                [sortBy]: sortOrder,
+              }
+            : undefined,
+      }),
+      this.prismaService.users.count(),
+    ]);
+
+    return { items, total };
   }
 
   findOne(id: string, options: { returnPermissions?: boolean } = {}) {

@@ -2,9 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { cookieConstants, jwtConstants } from '@configs/authentication.config';
+
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 
-import { jwtConstants, cookieConstants } from './constants';
 import { IAuthenticatedUser } from './dto/authenticate-user.dto';
 
 /**

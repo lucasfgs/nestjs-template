@@ -8,10 +8,9 @@ import { EPermission } from '@modules/api/core/permissions/entities/permission.e
 import { ALLOW_PERMISSIONS } from '@common/decorators/AllowPermissions';
 import { IS_PUBLIC_KEY } from '@common/decorators/Public';
 
-import { UsersService } from '../../users/users.service';
-import { IAuthenticatedUser } from '../dto/authenticate-user.dto';
-
-import { PermissionGuard } from './permission.guard';
+import { UsersService } from '../../../users/users.service';
+import { IAuthenticatedUser } from '../../dto/authenticate-user.dto';
+import { PermissionGuard } from '../permission.guard';
 
 describe('PermissionGuard', () => {
   let guard: PermissionGuard;

@@ -1,9 +1,10 @@
-import { IS_PUBLIC_KEY } from '@common/decorators/Public';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { JwtAuthGuard } from './jwt.guard';
+import { IS_PUBLIC_KEY } from '@common/decorators/Public';
+
+import { JwtAuthGuard } from '../jwt.guard';
 
 // Helper to get the parent prototype
 const getParentPrototype = (instance: any) =>

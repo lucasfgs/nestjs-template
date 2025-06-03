@@ -38,6 +38,7 @@ describe('JwtRefreshStrategy', () => {
   const mockUser: IAuthenticatedUser = {
     sub: '1',
     email: 'test@example.com',
+    name: 'test',
     role: 'user',
     permissions: [],
   };

@@ -48,6 +48,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     return {
       sub: user.id,
       email: user.email,
+      name: user.name,
       role: user.role.name,
       permissions: normalizePermissions(user),
     };

@@ -29,6 +29,7 @@ export type TPermission = {
 export interface IAuthenticatedUser {
   sub: string;
   email: string;
+  name: string;
   role: string;
   permissions: TPermission[];
 }

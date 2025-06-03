@@ -1,11 +1,12 @@
-import { ALLOW_PERMISSIONS } from '@common/decorators/AllowPermissions';
-import { IS_PUBLIC_KEY } from '@common/decorators/Public';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Method } from 'axios';
 
 import { EPermission } from '@modules/api/core/permissions/entities/permission.entity';
+
+import { ALLOW_PERMISSIONS } from '@common/decorators/AllowPermissions';
+import { IS_PUBLIC_KEY } from '@common/decorators/Public';
 
 import { UsersService } from '../../users/users.service';
 import { IAuthenticatedUser } from '../dto/authenticate-user.dto';
@@ -21,6 +22,7 @@ describe('PermissionGuard', () => {
   const mockUser: IAuthenticatedUser = {
     sub: '1',
     email: 'test@example.com',
+    name: 'test',
     role: 'user',
     permissions: [],
   };

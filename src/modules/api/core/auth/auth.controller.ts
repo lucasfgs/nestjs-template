@@ -1,4 +1,3 @@
-import { Public } from '@common/decorators/Public';
 import {
   Body,
   Controller,
@@ -20,6 +19,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 
 import { cookieConstants } from '@configs/authentication.config';
+
+import { Public } from '@common/decorators/Public';
 
 import { UsersService } from '../users/users.service';
 

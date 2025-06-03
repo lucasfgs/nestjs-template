@@ -250,6 +250,7 @@ describe('AuthService', () => {
       const mockUser: IAuthenticatedUser = {
         sub: '1',
         email: 'test@example.com',
+        name: 'test',
         role: 'user',
         permissions: [],
       };
@@ -284,6 +285,7 @@ describe('AuthService', () => {
       const mockUser: IAuthenticatedUser = {
         sub: '1',
         email: 'test@example.com',
+        name: 'test',
         role: 'user',
         permissions: [mockPermission],
       };

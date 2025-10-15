@@ -5,7 +5,8 @@ import * as bcrypt from 'bcrypt';
 
 import { jwtConstants } from '@configs/authentication.config';
 
-import { EmailService } from 'src/modules/shared/email/email.service';
+import { EmailTemplate } from '@modules/shared/email/email-templates.enum';
+import { EmailService } from '@modules/shared/email/email.service';
 
 import { User } from '../users/entity/user.entity';
 import { UsersService } from '../users/users.service';
@@ -88,11 +89,23 @@ export class AuthService {
     // Generate a random 6 digits code
     const code = Math.floor(100000 + Math.random() * 900000);
 
-    // Implementation for sending password reset email
+    // Find user for personalization
+    const user = await this.usersService.findByEmail(email);
+    // Calculate expiry (15 minutes)
+    const expiryMinutes = 15;
+    const year = new Date().getFullYear();
+    // Optionally, you could provide a reset link, but since the flow is code-based, focus on the code
     await this.emailService.sendEmail({
-      subject: 'Reset Password',
+      subject: 'Reset Your Password',
       to: email,
-      text: `Click on this link to reset your password: ${code}`,
+      template: EmailTemplate.PASSWORD_RESET,
+      templateData: {
+        name: user ? `${user.name}` : 'User',
+        code,
+        expiryMinutes,
+        year,
+        actionUrl: '', // Not used, but template expects it
+      },
     });
 
     return code;

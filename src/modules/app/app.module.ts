@@ -15,6 +15,8 @@ import { EventsModule } from '@modules/shared/events/events.module';
 import { PrismaModule } from '@modules/shared/prisma/prisma.module';
 import { SseModule } from '@modules/shared/sse/sse.module';
 
+import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
+
 @Module({
   imports: [
     PrismaModule,
@@ -33,6 +35,6 @@ import { SseModule } from '@modules/shared/sse/sse.module';
     EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TransformInterceptor],
 })
 export class AppModule {}

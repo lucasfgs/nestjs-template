@@ -15,7 +15,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js', 'docs/*'],
+  ignorePatterns: ['.eslintrc.js', 'docs/*', 'serverless/**'],
   settings: {
     'import/resolver': {
       typescript: {

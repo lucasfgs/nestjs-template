@@ -6,6 +6,10 @@ jest.mock('nodemailer', () => {
   };
 });
 
+import * as fs from 'fs';
+import * as path from 'path';
+
+import * as Handlebars from 'handlebars';
 import nodemailer from 'nodemailer';
 
 import { EmailService } from '../email.service';
@@ -154,6 +158,38 @@ describe('EmailService', () => {
       from: 'custom@example.com',
       text: 'Test Content',
     });
+  });
+
+  it('should render template and send html', async () => {
+    // Prepare a fake template file and mock handlebars
+    const templateDir = path.join(__dirname, '..', 'templates');
+    const templatePath = path.join(templateDir, 'test-template.hbs');
+    // Ensure templates directory exists
+    if (!fs.existsSync(templateDir)) {
+      fs.mkdirSync(templateDir);
+    }
+    fs.writeFileSync(templatePath, '<p>Hello {{name}}</p>');
+
+    jest.spyOn(Handlebars, 'compile');
+
+    mockTransporter.sendMail.mockResolvedValueOnce({ messageId: '123' });
+    await service.sendEmail({
+      to: 'test@example.com',
+      subject: 'Template Subject',
+      template: 'test-template',
+      templateData: { name: 'Tester' },
+    });
+
+    expect(mockTransporter.sendMail).toHaveBeenCalledWith({
+      to: 'test@example.com',
+      subject: 'Template Subject',
+      from: 'noreply@example.com',
+      text: undefined,
+      html: '<p>Hello Tester</p>',
+    });
+
+    // Cleanup
+    fs.unlinkSync(templatePath);
   });
 
   it('should use dummy transporter when initialization fails', async () => {

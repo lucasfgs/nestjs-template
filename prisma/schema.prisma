@@ -14,16 +14,16 @@ datasource db {
 }
 
 model Users {
-  id           String          @id @default(cuid())
-  name         String          @db.VarChar(50)
-  email        String          @db.VarChar(100)
-  password     String?         @db.VarChar(100)
-  created_at   DateTime        @default(now())
-  updated_at   DateTime?
-  role         Roles           @relation(fields: [roleId], references: [id])
-  roleId       Int
-  provider     Provider?       @default(LOCAL)
-  providerId   String?         @unique
+  id         String    @id @default(cuid())
+  name       String    @db.VarChar(50)
+  email      String    @db.VarChar(100)
+  password   String?   @db.VarChar(100)
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  role       Roles     @relation(fields: [roleId], references: [id])
+  roleId     Int
+  provider   Provider? @default(LOCAL)
+  providerId String?   @unique
 
   Subscription Subscriptions[]
   RefreshToken RefreshTokens[]
@@ -93,7 +93,36 @@ model RefreshTokens {
   @@map("refresh_tokens")
 }
 
+model Media {
+  id                Int         @id @default(autoincrement()) @db.UnsignedInt
+  model_type        String      @db.VarChar(255)
+  model_id          BigInt      @db.UnsignedBigInt
+  collection_name   String      @db.VarChar(255)
+  name              String      @db.VarChar(255)
+  file_name         String      @db.VarChar(255)
+  mime_type         String?     @db.VarChar(255)
+  disk              String      @db.VarChar(255)
+  size              Int         @db.UnsignedInt
+  manipulations     Json        @default("[]")
+  custom_properties Json        @default("{}")
+  responsive_images Json        @default("[]")
+  order_column      Int?        @db.UnsignedInt
+  status            MediaStatus @default(DONE)
+  created_at        DateTime?   @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?   @default(now()) @db.Timestamp(0)
+
+  @@index([model_type, model_id], map: "media_model_type_model_id_index")
+  @@index([status], map: "media_status_index")
+  @@map("media")
+}
+
 enum Provider {
   LOCAL
   GOOGLE
+}
+
+enum MediaStatus {
+  PENDING
+  WAITING_OPTIMIZATION
+  DONE
 }

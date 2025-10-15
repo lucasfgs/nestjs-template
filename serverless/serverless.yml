@@ -1,0 +1,118 @@
+# Serverless configuration for deploying cron Lambda(s)
+# Pure JavaScript implementation without NestJS dependencies
+# Notes:
+# - Uses esbuild for optimized bundling and minimal package size
+# - Sharp is pre-compiled for the Lambda runtime
+# - Functions are bundled individually for optimal performance
+
+service: myrentersguide-crons
+frameworkVersion: '3'
+
+plugins:
+  - serverless-esbuild
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  stage: ${opt:stage, 'staging'}
+  memorySize: 1024
+  timeout: 300
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+    NODE_ENV: ${env:NODE_ENV}
+  vpc:
+    # VPC configuration for database access (VPC inferred from subnets)
+    # Private subnets that have access to the database
+    subnetIds:
+      - subnet-03ad7003dbf3f3d8f # Private subnet 1
+      - subnet-061f1485d499ed436 # Private subnet 2
+    # Security groups that allow database access
+    securityGroupIds:
+      - sg-04a1c245028239b4a # Database access security group
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+            - s3:HeadObject
+          Resource:
+            - arn:aws:s3:::${env:AWS_S3_BUCKET, 'local-mrg-bucket'}/*
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: arn:aws:logs:*:*:*
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource: '*'
+        # VPC Lambda permissions - required for ENI management
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+            - ec2:AttachNetworkInterface
+            - ec2:DetachNetworkInterface
+          Resource: '*'
+
+# ESBuild configuration for optimized bundling
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: node20
+    platform: node
+    concurrency: 10
+    exclude:
+      - aws-sdk
+      - '@aws-sdk/client-s3'
+    external:
+      - sharp
+      - '@prisma/client'
+    packager: yarn
+    installExtraArgs:
+      - --production
+      - --frozen-lockfile
+    nativeZip: true
+
+package:
+  individually: true
+  patterns:
+    # Include only necessary files for bundled functions
+    - '!**/*.md'
+    - '!**/*.map'
+    - '!**/*.ts'
+    - '!**/__tests__/**'
+    - '!**/test/**'
+    - '!**/docs/**'
+    - '!**/.github/**'
+    - '!**/.vscode/**'
+    - '!**/coverage/**'
+    - '!**/documentation/**'
+    - '!**/legacy-migration/**'
+    - '!**/dist/**'
+    - '!**/node_modules/**/.cache/**'
+    # Include essential files
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - '../prisma/schema.prisma'
+
+# Functions are bundled and optimized with esbuild
+
+functions:
+  s3Handler:
+    handler: src/handlers/s3.handler
+    description: Triggered when new objects are created in the bucket
+    events:
+      - s3:
+          bucket: ${env:AWS_S3_BUCKET}
+          event: s3:ObjectCreated:*
+          existing: true

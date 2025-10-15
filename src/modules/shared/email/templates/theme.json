@@ -1,0 +1,11 @@
+{
+    "colors": {
+        "primary": "#03A095",
+        "accent": "#06B6D4",
+        "danger": "#EF4444",
+        "background": "#FFFFFF",
+        "text": "#0F172A",
+        "muted": "#6B7280",
+        "footer": "#9CA3AF"
+    }
+}

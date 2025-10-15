@@ -1,0 +1,58 @@
+<table
+  width='100%'
+  cellpadding='0'
+  cellspacing='0'
+  role='presentation'
+  style="background: {{colors.background}}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; padding:24px;"
+>
+  <tr>
+    <td align='center'>
+      <table
+        role='presentation'
+        width='600'
+        cellpadding='0'
+        cellspacing='0'
+        style='max-width:600px; width:100%; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(15,23,42,0.06);'
+      >
+        <tr>
+          <td
+            style='padding:20px 24px; text-align:center; background: {{colors.primary}}; color:#fff;'
+          >
+            <h1 style='margin:0; font-size:22px; color:#ffffff;'>Welcome,
+              {{name}}!</h1>
+            {{#if introText}}
+              <p
+                style='margin:8px 0 0; font-size:14px; color: rgba(255,255,255,0.95);'
+              >{{introText}}</p>
+            {{/if}}
+          </td>
+        </tr>
+        <tr>
+          <td style='padding:24px; color: {{colors.text}};'>
+            <p style='margin:0 0 12px;'>Thanks for joining — we're thrilled to
+              have you on board.</p>
+            <p
+              style='margin:0 0 16px; color: {{colors.text}};'
+            >{{introText}}</p>
+            {{#if actionUrl}}
+              <p style='text-align:center;'>
+                <a
+                  href='{{actionUrl}}'
+                  style='display:inline-block; padding:12px 18px; background:{{colors.primary}}; color:#fff; text-decoration:none; border-radius:8px; font-weight:600; border:1px solid rgba(255,255,255,0.06);'
+                >{{buttonText}}</a>
+              </p>
+            {{/if}}
+            <p
+              style='margin:20px 0 0; font-size:13px; color:{{colors.muted}};'
+            >If you didn't sign up, you can ignore this message.</p>
+          </td>
+        </tr>
+        <tr>
+          <td
+            style='background:#f9fafb; padding:12px 20px; text-align:center; color:{{colors.footer}}; font-size:12px;'
+          >&copy; {{year}} My Renters Guide</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,31 @@
+{
+    "name": "myrentersguide-serverless",
+    "version": "1.0.0",
+    "description": "Serverless functions for MyRentersGuide background tasks",
+    "main": "src/handlers/cron.js",
+    "scripts": {
+        "deploy": "dotenv -e ../.env -- serverless deploy",
+        "invoke:s3": "dotenv -e ../.env -- serverless invoke local --function s3Handler --data '@test-events/s3-event.json'"
+    },
+    "keywords": [
+        "serverless",
+        "aws",
+        "lambda",
+        "myrentersguide"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@prisma/client": "^6.16.2",
+        "aws-sdk": "^2.1668.0",
+        "sharp": "^0.33.5"
+    },
+    "devDependencies": {
+        "cross-env": "^10.1.0",
+        "dotenv-cli": "^10.0.0",
+        "esbuild": "^0.25.10",
+        "prisma": "^6.16.2",
+        "serverless": "^3.38.0",
+        "serverless-esbuild": "^1.55.1"
+    }
+}

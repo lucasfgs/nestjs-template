@@ -1,0 +1,109 @@
+<table
+  width='100%'
+  cellpadding='0'
+  cellspacing='0'
+  role='presentation'
+  style="background: {{colors.background}}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; padding:24px;"
+>
+  <tr>
+    <td align='center'>
+      <table
+        role='presentation'
+        width='600'
+        cellpadding='0'
+        cellspacing='0'
+        style='max-width:600px; width:100%; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(15,23,42,0.06);'
+      >
+        <tr>
+          <td
+            style='background: {{colors.primary}}; padding:20px 24px; text-align:center; color:#fff;'
+          >
+            <h1
+              style='margin:0; font-size:20px; font-weight:600; color:#ffffff;'
+            >New Lead for {{listing.name}}</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style='padding:20px 24px; color: {{colors.text}};'>
+            <table
+              role='presentation'
+              width='100%'
+              cellpadding='0'
+              cellspacing='0'
+            >
+              <tr>
+                <td style='padding-bottom:8px;'><strong>Name</strong></td>
+                <td style='padding-bottom:8px; text-align:right;'>{{firstName}}
+                  {{lastName}}</td>
+              </tr>
+              <tr>
+                <td style='padding-bottom:8px;'><strong>Email</strong></td>
+                <td style='padding-bottom:8px; text-align:right;'>{{email}}</td>
+              </tr>
+              {{#if phone}}
+                <tr>
+                  <td style='padding-bottom:8px;'><strong>Phone</strong></td>
+                  <td
+                    style='padding-bottom:8px; text-align:right;'
+                  >{{phone}}</td>
+                </tr>
+              {{/if}}
+              {{#if message}}
+                <tr>
+                  <td style='padding-bottom:8px;' colspan='2'><strong
+                    >Message</strong></td>
+                </tr>
+                <tr>
+                  <td colspan='2' style='padding-bottom:12px;'>
+                    <div
+                      style='border:2px dotted {{colors.muted}}; padding:12px; border-radius:6px; background: #fff;'
+                    >
+                      <div
+                        style='color: {{colors.text}}; white-space:pre-wrap; word-break:break-word; font-size:14px;'
+                      >{{message}}</div>
+                    </div>
+                  </td>
+                </tr>
+              {{/if}}
+            </table>
+
+            <hr
+              style='border:none; border-top:1px solid #eef2f6; margin:16px 0;'
+            />
+
+            <table
+              role='presentation'
+              width='100%'
+              cellpadding='0'
+              cellspacing='0'
+            >
+              <tr>
+                <td style='padding-bottom:8px;'><strong>Request App</strong></td>
+                <td style='padding-bottom:8px; text-align:right;'>{{#if
+                    requestApp
+                  }}Yes{{else}}NA{{/if}}</td>
+              </tr>
+              <tr>
+                <td style='padding-bottom:8px;'><strong>Confirm Availability</strong></td>
+                <td style='padding-bottom:8px; text-align:right;'>{{#if
+                    confirmAvail
+                  }}Yes{{else}}NA{{/if}}</td>
+              </tr>
+              <tr>
+                <td style='padding-bottom:8px;'><strong>Virtual Tour</strong></td>
+                <td style='padding-bottom:8px; text-align:right;'>{{#if
+                    virtualTour
+                  }}Yes{{else}}NA{{/if}}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td
+            style='background: #f9fafb; padding:14px 20px; text-align:center; color:{{colors.footer}}; font-size:12px;'
+          >&copy; {{year}} My Renters Guide</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

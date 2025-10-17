@@ -1,4 +1,3 @@
-import { Public } from '@common/decorators/Public';
 import {
   Controller,
   Get,
@@ -11,6 +10,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Public } from '@common/decorators/Public';
 
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';

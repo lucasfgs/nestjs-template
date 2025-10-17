@@ -1,5 +1,3 @@
-import { AllowPermissions } from '@common/decorators/AllowPermissions';
-import { PaginationInterceptor } from '@common/interceptors/pagination.interceptor';
 import {
   Controller,
   Get,
@@ -14,6 +12,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { AllowPermissions } from '@common/decorators/AllowPermissions';
+import { PaginationInterceptor } from '@common/interceptors/pagination.interceptor';
 
 import { EPermission } from '../permissions/entities/permission.entity';
 import { RolesService } from '../roles/roles.service';

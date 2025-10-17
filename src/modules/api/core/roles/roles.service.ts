@@ -1,6 +1,6 @@
-import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 
+import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 import { EventsGateway } from 'src/modules/shared/events/events.gateway';
 import { PrismaService } from 'src/modules/shared/prisma/prisma.service';
 

@@ -1,4 +1,3 @@
-import { Serialize } from '@common/interceptors/serialize.interceptor';
 import {
   Controller,
   Post,
@@ -20,6 +19,8 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+
+import { Serialize } from '@common/interceptors/serialize.interceptor';
 
 import {
   MediaResponseDto,

@@ -1,7 +1,8 @@
-import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
+import { PaginationDto } from '@common/interceptors/dto/pagination.dto';
 
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 

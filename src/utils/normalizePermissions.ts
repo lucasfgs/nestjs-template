@@ -1,5 +1,4 @@
 import { TPermission } from '@modules/api/core/auth/dto/authenticate-user.dto';
-
 import { User } from '@modules/api/core/users/entity/user.entity';
 
 export function normalizePermissions(user: User): TPermission[] {

@@ -2,6 +2,8 @@ import { Controller, Get, Sse } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { fromEvent, map, Observable } from 'rxjs';
 
+import { Public } from '@common/decorators/Public';
+
 import { AppService } from './app.service';
 
 @Controller()
@@ -12,6 +14,7 @@ export class AppController {
   ) {}
 
   @Get()
+  @Public()
   getHello(): string {
     return this.appService.getHello();
   }

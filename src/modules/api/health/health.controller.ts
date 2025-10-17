@@ -1,4 +1,3 @@
-import { Public } from '@common/decorators/Public';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -8,6 +7,8 @@ import {
   DiskHealthIndicator,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
+
+import { Public } from '@common/decorators/Public';
 
 @ApiTags('health')
 @Controller('health')

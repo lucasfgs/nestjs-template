@@ -44,7 +44,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-    private refreshToeknService: RefreshTokenService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   @Public()
@@ -107,7 +107,7 @@ export class AuthController {
     const userPayload = req.user as IAuthenticatedUser;
 
     const { accessToken, refreshToken } =
-      await this.refreshToeknService.generateTokenPair(
+      await this.refreshTokenService.generateTokenPair(
         userPayload.sub,
         userPayload,
         req.cookies['refreshToken'],

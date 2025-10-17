@@ -18,7 +18,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "docker:up": "bash docker/compose-up.sh",
+    "docker:down": "bash docker/compose-down.sh",
+    "docker:logs": "bash docker/logs.sh",
+    "docker:shell": "bash docker/shell.sh",
+    "docker:prisma": "bash docker/prisma.sh",
+    "docker:rebuild": "bash docker/rebuild.sh",
+    "docker:verify": "bash docker/verify.sh"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",

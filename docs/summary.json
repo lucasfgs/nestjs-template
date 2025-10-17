@@ -1,5 +1,31 @@
 [
     {
+        "title": "Docker",
+        "file": "docker/index.md",
+        "children": [
+            {
+                "title": "Quick Start",
+                "file": "docker/quickstart.md"
+            },
+            {
+                "title": "Full Guide",
+                "file": "docker/full-guide.md"
+            },
+            {
+                "title": "Architecture",
+                "file": "docker/architecture.md"
+            },
+            {
+                "title": "Checklist",
+                "file": "docker/checklist.md"
+            },
+            {
+                "title": "Implementation Details",
+                "file": "docker/implementation.md"
+            }
+        ]
+    },
+    {
         "title": "Authentication",
         "file": "authentication/index.md",
         "children": [

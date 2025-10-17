@@ -1,6 +1,6 @@
 # Backend API
 
-A NestJS-based backend API with authentication, role-based access control, and more. This is part of a full-stack application with a [Next.js frontend](https://github.com/lucasfgs/nextjs14-dashboard-with-nest-api-template).
+A NestJS-based backend API with authentication, role-based access control, and comprehensive Docker support. This is part of a full-stack application with a [Next.js frontend](https://github.com/lucasfgs/nextjs14-dashboard-with-nest-api-template).
 
 ## Features
 
@@ -10,126 +10,115 @@ A NestJS-based backend API with authentication, role-based access control, and m
 - 🍪 Secure cookie-based token storage
 - 🛡️ CORS configuration for frontend integration
 - 📝 Swagger API documentation
-- 🗄️ Prisma ORM with PostgreSQL
+- 🗄️ Prisma ORM with MySQL
 - 🔍 Request validation and error handling
+- 🐳 Docker support for seamless development
+
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
+
+The easiest way to get started! Docker includes everything: database, application, and all dependencies.
+
+```bash
+# 1. Copy environment template
+cp .env-example .env
+
+# 2. Edit .env and update:
+#    - DATABASE_URL: Change 'localhost' to 'mysql' (DATABASE_URL=mysql://root:rootpassword@mysql:3306/nestjs_db)
+#    - JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, SESSION_SECRET
+
+# 3. Start Docker services
+npm run docker:up
+```
+
+Your API is now running at **http://localhost:4000** 🎉
+
+**📚 For complete Docker documentation, run:**
+
+```bash
+npm run start:docs
+```
+
+Then navigate to the "Docker" section in the documentation.
+
+### Without Docker
 
 ## Prerequisites
 
-- Node.js (v16 or higher)
-- PostgreSQL
-- Yarn package manager
+- Node.js (v22 or higher)
+- MySQL (v8.0 or higher)
+- npm package manager
 
-## Environment Variables
+**Setup:**
 
-Create a `.env` file in the root directory with the following variables:
+1. Install dependencies: `npm install`
+2. Copy `.env-example` to `.env` and configure
+3. Run migrations: `npm run prisma migrate dev`
+4. Start the app: `npm run start:dev`
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+## 📚 Documentation
 
-# JWT
-JWT_ACCESS_SECRET="your-access-secret"
-JWT_REFRESH_SECRET="your-refresh-secret"
-JWT_ACCESS_EXPIRES_IN="15m"
-JWT_REFRESH_EXPIRES_IN="7d"
+This project uses Compodoc for comprehensive documentation.
 
-# CORS
-FRONTEND_URL="http://localhost:3000"
-
-# Server
-PORT=4000
-```
-
-## Installation
+**Start the documentation server:**
 
 ```bash
-# Install dependencies
-$ yarn install
-
-# Generate Prisma client
-$ yarn prisma generate
-
-# Run database migrations
-$ yarn prisma migrate dev
+npm run start:docs
 ```
 
-## Running the app
+Then visit **http://localhost:8080** to access:
+
+- 🐳 **Docker Setup** - Complete guide to containerized development
+- 🔐 **Authentication** - Auth flows and OAuth integration
+- 🧪 **Testing** - Test structure, coverage, and best practices
+- 📖 **API Documentation** - Full API reference with Swagger
+
+## 🔑 Common Commands
 
 ```bash
 # Development
-$ yarn start
+npm run start:dev              # Start in development mode
+npm run docker:up              # Start with Docker
 
-# Watch mode
-$ yarn start:dev
+# Database
+npm run prisma migrate dev     # Run migrations
+npm run prisma studio          # Open Prisma Studio
 
-# Production mode
-$ yarn start:prod
+# Testing
+npm test                       # Run unit tests
+npm run test:e2e              # Run E2E tests
+npm run test:cov              # Generate coverage
+
+# Documentation
+npm run start:docs             # Start Compodoc server
 ```
 
-## API Documentation
+## 📖 API Documentation
 
-Once the application is running, you can access the Swagger documentation at:
+Swagger documentation is available when the application is running:
 
-```
-http://localhost:4000/docs
-```
+- **URL:** http://localhost:4000/docs
+- Includes all endpoints, request/response schemas, and authentication
 
-## Authentication Flow
-
-1. **Login**
-
-   - Endpoint: `POST /auth/login`
-   - Sets both access and refresh tokens as cookies
-   - Access token is not httpOnly for frontend access
-   - Refresh token is httpOnly for security
-
-2. **Token Refresh**
-
-   - Endpoint: `POST /auth/refresh`
-   - Uses refresh token from cookies
-   - Returns new access token
-   - Automatically handled by frontend
-
-3. **Protected Routes**
-   - Use `@Public()` decorator to mark public routes
-   - All other routes require valid access token
-   - Token is validated via `JwtAuthGuard`
-
-## Error Handling
-
-- Global exception filter for consistent error responses
-- Validation pipe for request body validation
-- Custom exception classes for specific error cases
-
-## Testing
-
-```bash
-# Unit tests
-$ yarn test
-
-# E2E tests
-$ yarn test:e2e
-
-# Test coverage
-$ yarn test:cov
-```
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
 ├── modules/
 │   ├── api/
-│   │   ├── core/
-│   │   │   ├── auth/         # Authentication module
-│   │   │   ├── users/        # User management
-│   │   │   └── roles/        # Role management
-│   │   └── ...
-│   └── ...
-├── shared/
-│   ├── prisma/              # Database configuration
-│   └── ...
-└── main.ts                  # Application entry point
+│   │   ├── core/              # Core modules (auth, users, roles)
+│   │   ├── health/            # Health check endpoints
+│   │   └── payment/           # Payment integration
+│   ├── app/                   # Application module
+│   └── shared/                # Shared modules (prisma, events)
+├── common/                    # Common utilities
+│   ├── decorators/            # Custom decorators
+│   ├── filters/               # Exception filters
+│   ├── interceptors/          # Interceptors
+│   └── middlewares/           # Middlewares
+├── configs/                   # Configuration files
+└── main.ts                    # Application entry point
 ```
 
 ## Contributing

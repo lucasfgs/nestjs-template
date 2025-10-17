@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist
+build
+.next
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.git
+.gitignore
+README.md
+.prettierrc
+.eslintrc.js
+
+# Docker
+Dockerfile
+Dockerfile.dev
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs
+
+# Prisma
+prisma/migrations
+
+# Serverless
+serverless

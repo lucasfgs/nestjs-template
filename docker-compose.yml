@@ -1,0 +1,71 @@
+x-build-args:
+  DOCKER_BUILDKIT: 0
+  COMPOSE_DOCKER_CLI_BUILD: 0
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: nestjs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nestjs_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - nestjs-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-prootpassword",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # NestJS Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-4000}:4000"
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL to use the MySQL container hostname
+      DATABASE_URL: mysql://root:rootpassword@mysql:3306/nestjs_db
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./test:/app/test
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - nestjs-network
+    command: sh -c "npm install && npx prisma migrate deploy && npx prisma db seed && npx prisma generate && npm run start:dev"
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  nestjs-network:
+    driver: bridge

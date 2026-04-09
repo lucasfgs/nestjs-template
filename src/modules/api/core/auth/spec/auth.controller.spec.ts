@@ -38,6 +38,8 @@ describe('AuthController', () => {
 
     mockRefreshTokenService = {
       generateTokenPair: jest.fn(),
+      findTokenRecord: jest.fn(),
+      deleteById: jest.fn(),
     } as any;
 
     mockResponse = {
@@ -155,14 +157,36 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('should clear cookies', async () => {
-      await controller.logout(mockResponse);
+    it('should clear cookies and revoke refresh token', async () => {
+      const req = {
+        user: { sub: '1' },
+        cookies: { refreshToken: 'refresh-token' },
+      };
 
+      mockRefreshTokenService.findTokenRecord.mockResolvedValue({
+        id: 'token-id',
+      } as any);
+
+      await controller.logout(req, mockResponse);
+
+      expect(mockRefreshTokenService.findTokenRecord).toHaveBeenCalledWith(
+        'refresh-token',
+        '1',
+      );
+      expect(mockRefreshTokenService.deleteById).toHaveBeenCalledWith(
+        'token-id',
+      );
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken', {
         path: cookieConstants.refresh.path,
+        domain: cookieConstants.refresh.domain,
+        sameSite: cookieConstants.refresh.sameSite,
+        secure: cookieConstants.refresh.secure,
       });
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('accessToken', {
         path: cookieConstants.access.path,
+        domain: cookieConstants.access.domain,
+        sameSite: cookieConstants.access.sameSite,
+        secure: cookieConstants.access.secure,
       });
     });
   });
@@ -361,12 +385,6 @@ describe('AuthController', () => {
         forgotPasswordCode: '123456',
         forgotPasswordEmail: 'test@example.com',
       };
-
-      mockAuthService.forgotPassword.mockResolvedValue(123456);
-      mockAuthService.refreshTokens.mockResolvedValue({
-        accessToken: 'new-access-token',
-        refreshToken: 'new-refresh-token',
-      });
 
       await controller.resetPassword(
         {

@@ -87,9 +87,34 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Response({ passthrough: true }) res: ExpressResponse) {
-    res.clearCookie('refreshToken', { path: cookieConstants.refresh.path });
-    res.clearCookie('accessToken', { path: cookieConstants.access.path });
+  async logout(
+    @Request() req,
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const currentRefreshToken = req.cookies?.refreshToken;
+    if (currentRefreshToken) {
+      const tokenRecord = await this.refreshToeknService.findTokenRecord(
+        currentRefreshToken,
+        req.user.sub,
+      );
+
+      if (tokenRecord) {
+        await this.refreshToeknService.deleteById(tokenRecord.id);
+      }
+    }
+
+    res.clearCookie('refreshToken', {
+      path: cookieConstants.refresh.path,
+      domain: cookieConstants.refresh.domain,
+      sameSite: cookieConstants.refresh.sameSite,
+      secure: cookieConstants.refresh.secure,
+    });
+    res.clearCookie('accessToken', {
+      path: cookieConstants.access.path,
+      domain: cookieConstants.access.domain,
+      sameSite: cookieConstants.access.sameSite,
+      secure: cookieConstants.access.secure,
+    });
   }
 
   @Public()

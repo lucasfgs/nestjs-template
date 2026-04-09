@@ -1,6 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createHash } from 'crypto';
 
 import { cookieConstants, jwtConstants } from '@configs/authentication.config';
 
@@ -24,6 +25,9 @@ describe('RefreshTokenService', () => {
 
   const mockRefreshToken = 'mock-refresh-token';
   const mockAccessToken = 'mock-access-token';
+
+  const hashToken = (token: string) =>
+    createHash('sha256').update(token).digest('hex');
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,7 +61,6 @@ describe('RefreshTokenService', () => {
     jwtService = module.get(JwtService);
     prismaService = module.get(PrismaService);
 
-    // Mock JWT signing
     jwtService.sign.mockReturnValue(mockRefreshToken);
   });
 
@@ -71,7 +74,8 @@ describe('RefreshTokenService', () => {
 
       (prismaService.refreshTokens.create as jest.Mock).mockResolvedValue({
         id: '1',
-        token: mockRefreshToken,
+        tokenHash: hashToken(mockRefreshToken),
+        tokenId: 'jti-1',
         userId: mockUser.sub,
         expiresAt,
       });
@@ -80,7 +84,7 @@ describe('RefreshTokenService', () => {
 
       expect(result).toBe(mockRefreshToken);
       expect(jwtService.sign).toHaveBeenCalledWith(
-        { sub: mockUser.sub },
+        { sub: mockUser.sub, jti: expect.any(String) },
         {
           secret: process.env.JWT_REFRESH_SECRET,
           expiresIn: jwtConstants.refreshExpiresIn,
@@ -88,7 +92,8 @@ describe('RefreshTokenService', () => {
       );
       expect(prismaService.refreshTokens.create).toHaveBeenCalledWith({
         data: {
-          token: mockRefreshToken,
+          tokenHash: hashToken(mockRefreshToken),
+          tokenId: expect.any(String),
           userId: mockUser.sub,
           expiresAt: expect.any(Date),
         },
@@ -97,18 +102,21 @@ describe('RefreshTokenService', () => {
 
     it('should validate and delete current token before generating new one', async () => {
       const currentToken = 'current-token';
+      const currentTokenHash = hashToken(currentToken);
       const expiresAt = new Date(Date.now() + cookieConstants.refresh.maxAge);
 
       (prismaService.refreshTokens.findFirst as jest.Mock).mockResolvedValue({
         id: '1',
-        token: currentToken,
+        tokenHash: currentTokenHash,
+        tokenId: 'jti-old',
         userId: mockUser.sub,
-        expiresAt: new Date(Date.now() + 1000), // Not expired
+        expiresAt: new Date(Date.now() + 1000),
       });
 
       (prismaService.refreshTokens.create as jest.Mock).mockResolvedValue({
         id: '2',
-        token: mockRefreshToken,
+        tokenHash: hashToken(mockRefreshToken),
+        tokenId: 'jti-new',
         userId: mockUser.sub,
         expiresAt,
       });
@@ -120,7 +128,7 @@ describe('RefreshTokenService', () => {
 
       expect(result).toBe(mockRefreshToken);
       expect(prismaService.refreshTokens.findFirst).toHaveBeenCalledWith({
-        where: { token: currentToken, userId: mockUser.sub },
+        where: { tokenHash: currentTokenHash, userId: mockUser.sub },
       });
       expect(prismaService.refreshTokens.delete).toHaveBeenCalledWith({
         where: { id: '1' },
@@ -144,9 +152,10 @@ describe('RefreshTokenService', () => {
 
       (prismaService.refreshTokens.findFirst as jest.Mock).mockResolvedValue({
         id: '1',
-        token: currentToken,
+        tokenHash: hashToken(currentToken),
+        tokenId: 'jti-old',
         userId: mockUser.sub,
-        expiresAt: new Date(Date.now() - 1000), // Expired
+        expiresAt: new Date(Date.now() - 1000),
       });
 
       await expect(
@@ -165,7 +174,8 @@ describe('RefreshTokenService', () => {
 
       (prismaService.refreshTokens.create as jest.Mock).mockResolvedValue({
         id: '1',
-        token: mockRefreshToken,
+        tokenHash: hashToken(mockRefreshToken),
+        tokenId: 'jti-1',
         userId: mockUser.sub,
         expiresAt,
       });
@@ -187,9 +197,11 @@ describe('RefreshTokenService', () => {
   describe('findTokenRecord', () => {
     it('should find a valid token record', async () => {
       const token = 'valid-token';
+      const tokenHash = hashToken(token);
       const mockRecord = {
         id: '1',
-        token,
+        tokenHash,
+        tokenId: 'jti-1',
         userId: mockUser.sub,
         expiresAt: new Date(Date.now() + 1000),
       };
@@ -203,7 +215,7 @@ describe('RefreshTokenService', () => {
       expect(result).toEqual(mockRecord);
       expect(prismaService.refreshTokens.findFirst).toHaveBeenCalledWith({
         where: {
-          token,
+          tokenHash,
           userId: mockUser.sub,
           expiresAt: { gt: expect.any(Date) },
         },

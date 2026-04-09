@@ -160,9 +160,15 @@ describe('AuthController', () => {
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken', {
         path: cookieConstants.refresh.path,
+        domain: cookieConstants.refresh.domain,
+        sameSite: cookieConstants.refresh.sameSite,
+        secure: cookieConstants.refresh.secure,
       });
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('accessToken', {
         path: cookieConstants.access.path,
+        domain: cookieConstants.access.domain,
+        sameSite: cookieConstants.access.sameSite,
+        secure: cookieConstants.access.secure,
       });
     });
   });
@@ -361,12 +367,6 @@ describe('AuthController', () => {
         forgotPasswordCode: '123456',
         forgotPasswordEmail: 'test@example.com',
       };
-
-      mockAuthService.forgotPassword.mockResolvedValue(123456);
-      mockAuthService.refreshTokens.mockResolvedValue({
-        accessToken: 'new-access-token',
-        refreshToken: 'new-refresh-token',
-      });
 
       await controller.resetPassword(
         {

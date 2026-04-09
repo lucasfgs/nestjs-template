@@ -88,8 +88,18 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Response({ passthrough: true }) res: ExpressResponse) {
-    res.clearCookie('refreshToken', { path: cookieConstants.refresh.path });
-    res.clearCookie('accessToken', { path: cookieConstants.access.path });
+    res.clearCookie('refreshToken', {
+      path: cookieConstants.refresh.path,
+      domain: cookieConstants.refresh.domain,
+      sameSite: cookieConstants.refresh.sameSite,
+      secure: cookieConstants.refresh.secure,
+    });
+    res.clearCookie('accessToken', {
+      path: cookieConstants.access.path,
+      domain: cookieConstants.access.domain,
+      sameSite: cookieConstants.access.sameSite,
+      secure: cookieConstants.access.secure,
+    });
   }
 
   @Public()

@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import * as crypto from 'crypto';
 
 import { cookieConstants, jwtConstants } from '@configs/authentication.config';
 
@@ -20,6 +21,10 @@ export class RefreshTokenService {
     private prisma: PrismaService,
   ) {}
 
+  private hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
   /**
    * Generate a new refresh token and store it in the database.
    * If an existing refresh token is provided, validate and remove it first (rotate).
@@ -28,22 +33,21 @@ export class RefreshTokenService {
     userId: string,
     currentToken?: string,
   ): Promise<string> {
-    // If a current refresh token is provided, validate and remove it
     if (currentToken) {
+      const currentTokenHash = this.hashToken(currentToken);
       const existing = await this.prisma.refreshTokens.findFirst({
-        where: { token: currentToken, userId },
+        where: { token: currentTokenHash, userId },
       });
 
       if (!existing || existing.expiresAt < new Date()) {
         throw new UnauthorizedException('Invalid or expired refresh token');
       }
-      // Whitelist model: delete the old token
+
       await this.prisma.refreshTokens.delete({
         where: { id: existing.id },
       });
     }
 
-    // Sign a new JWT refresh token
     const newRefreshToken = this.jwtService.sign(
       { sub: userId },
       {
@@ -52,14 +56,12 @@ export class RefreshTokenService {
       },
     );
 
-    // Compute expiration date
     const maxAgeMs = cookieConstants.refresh.maxAge;
     const expiresAt = new Date(Date.now() + maxAgeMs);
 
-    // Store in whitelist table
     await this.prisma.refreshTokens.create({
       data: {
-        token: newRefreshToken,
+        token: this.hashToken(newRefreshToken),
         userId,
         expiresAt,
       },
@@ -91,7 +93,7 @@ export class RefreshTokenService {
 
   async findTokenRecord(token: string, userId: string) {
     return this.prisma.refreshTokens.findFirst({
-      where: { token, userId, expiresAt: { gt: new Date() } },
+      where: { token: this.hashToken(token), userId, expiresAt: { gt: new Date() } },
     });
   }
 
